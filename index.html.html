@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>الحالة التشغيلية للمشاعر المقدسة</title>
+<style>
+  /* ===== عدّل هذا السطر بعد نشر Apps Script ===== */
+</style>
+</head>
+<body>
+<script>
+  // ================================================================
+  // 👇 الصق هنا رابط الـ Web App بتاع Apps Script بعد نشره (Deploy)
+  const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz0y6ib4aVi04zVNcQ4mFz9OHwRJkELFM4uprevVCWQmSGus5mGp6i0HqnywZ15FpHK/exec";
+  // مثال: https://script.google.com/macros/s/AKfycb.../exec
+  // ================================================================
+</script>
+<style>
+  :root{
+    --bg:#f5f7f6; --card:#ffffff; --border:#e2e6e4; --text:#1b241f; --text-dim:#5b6660;
+    --accent:#0f7a4f; --accent-dark:#0a5c3a; --accent-soft:#e6f4ee;
+    --warn:#b45309; --warn-soft:#fef3e0; --danger:#b91c1c; --danger-soft:#fdecec;
+    --shadow: 0 1px 3px rgba(20,30,25,.06), 0 1px 2px rgba(20,30,25,.04);
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:"Tahoma","Segoe UI",system-ui,-apple-system,sans-serif;min-height:100vh;padding-bottom:60px;}
+  header{background:linear-gradient(135deg,var(--accent-dark),var(--accent));color:#fff;padding:22px 18px 60px;text-align:center;}
+  header h1{margin:0 0 4px;font-size:20px;font-weight:700;}
+  header p{margin:0;font-size:13px;opacity:.9;}
+  .wrap{max-width:880px;margin:-40px auto 0;padding:0 14px;}
+  .tabs{display:flex;background:var(--card);border-radius:14px;box-shadow:var(--shadow);padding:6px;gap:6px;margin-bottom:16px;border:1px solid var(--border);}
+  .tab-btn{flex:1;padding:11px 8px;border:none;background:transparent;color:var(--text-dim);font-size:14px;font-weight:700;border-radius:10px;cursor:pointer;font-family:inherit;}
+  .tab-btn.active{background:var(--accent);color:#fff;}
+  .view{display:none;} .view.active{display:block;}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:14px;box-shadow:var(--shadow);}
+  .card h2{margin:0 0 12px;font-size:16px;}
+  label{display:block;font-size:13px;color:var(--text-dim);margin:10px 0 5px;font-weight:600;}
+  input[type=text], input[type=date], input[type=number], textarea{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:var(--bg);color:var(--text);font-size:14px;font-family:inherit;resize:vertical;}
+  textarea{min-height:70px;line-height:1.6;}
+  input:focus, textarea:focus{outline:2px solid var(--accent);outline-offset:1px;}
+  .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+  @media (max-width:520px){.grid4{grid-template-columns:repeat(2,1fr);}}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .section-block{border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:12px;background:var(--accent-soft);}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:12px 18px;border-radius:10px;border:none;background:var(--accent);color:#fff;font-size:15px;font-weight:700;cursor:pointer;width:100%;margin-top:12px;font-family:inherit;}
+  .btn.secondary{background:transparent;border:1px solid var(--border);color:var(--text);}
+  .small-note{font-size:12px;color:var(--text-dim);margin-top:6px;}
+  .day-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:12px;box-shadow:var(--shadow);cursor:pointer;}
+  .day-card .row1{display:flex;justify-content:space-between;align-items:center;}
+  .day-card .row1 b{font-size:15px;}
+  .badge{font-size:11px;padding:3px 10px;border-radius:999px;background:var(--accent-soft);color:var(--accent-dark);font-weight:700;}
+  .badge.warn{background:var(--warn-soft);color:var(--warn);}
+  .badge.danger{background:var(--danger-soft);color:var(--danger);}
+  .meta-line{font-size:12px;color:var(--text-dim);margin-top:6px;}
+  .detail-section{margin-top:10px;}
+  .detail-section h4{margin:0 0 6px;font-size:13px;color:var(--accent-dark);}
+  .detail-box{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:13px;line-height:1.8;white-space:pre-wrap;margin-bottom:8px;}
+  .stats-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;}
+  .stat-pill{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:6px 10px;font-size:12px;text-align:center;flex:1;min-width:70px;}
+  .stat-pill b{display:block;font-size:16px;}
+  .empty-state{text-align:center;padding:40px 12px;color:var(--text-dim);}
+  .empty-state div{font-size:34px;margin-bottom:10px;}
+  .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--accent-dark);color:#fff;padding:10px 18px;border-radius:10px;font-size:13px;box-shadow:var(--shadow);z-index:999;opacity:0;transition:opacity .25s;pointer-events:none;}
+  .toast.show{opacity:1;}
+  #detailModal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:flex-end;justify-content:center;z-index:1000;}
+  #detailModal.show{display:flex;}
+  #detailModal .sheet{background:var(--card);width:100%;max-width:600px;max-height:88vh;overflow-y:auto;border-radius:18px 18px 0 0;padding:18px;}
+  .close-btn{display:block;margin:0 0 10px auto;background:var(--bg);border:1px solid var(--border);width:34px;height:34px;border-radius:50%;font-size:16px;cursor:pointer;color:var(--text);}
+  .status-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-left:4px;}
+  .synced{background:#22c55e;} .offline{background:var(--warn);}
+  .warn-banner{background:var(--warn-soft);color:var(--warn);border:1px solid var(--warn);border-radius:10px;padding:10px 14px;font-size:13px;margin-bottom:14px;}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🕋 الحالة التشغيلية للمشاعر المقدسة</h1>
+  <p>منى · مزدلفة · عرفة — تسجيل ومتابعة يومية</p>
+</header>
+
+<div class="wrap">
+  <div id="setupWarning" class="warn-banner" style="display:none;">
+    ⚠️ لم يتم ضبط رابط قاعدة البيانات بعد. افتح ملف HTML وضع رابط Apps Script في المتغير APPS_SCRIPT_URL أعلى الصفحة.
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="view">📊 عرض الحالة</button>
+    <button class="tab-btn" data-tab="entry">📝 تسجيل يومي</button>
+  </div>
+
+  <div class="view active" id="view-tab">
+    <div class="card" style="display:flex;align-items:center;justify-content:space-between;">
+      <div style="font-size:13px;color:var(--text-dim);">
+        <span class="status-dot" id="connDot"></span>
+        <span id="connText">جاري الاتصال...</span>
+      </div>
+      <button class="btn secondary" style="width:auto;margin:0;padding:8px 14px;font-size:13px;" onclick="refreshList()">تحديث ↻</button>
+    </div>
+    <div id="daysList"></div>
+  </div>
+
+  <div class="view" id="entry-tab">
+    <div class="card">
+      <h2>📅 بيانات اليوم</h2>
+      <div class="grid2">
+        <div><label>التاريخ</label><input type="date" id="f_date"></div>
+        <div><label>اليوم</label><input type="text" id="f_weekday" placeholder="مثال: الثلاثاء"></div>
+      </div>
+      <label>اسم المُدخِل (اختياري)</label>
+      <input type="text" id="f_author" placeholder="اسمك">
+    </div>
+
+    <div class="card">
+      <h2>🟢 أولاً: مشعر منى</h2>
+      <div class="section-block">
+        <label>الوارد</label><textarea id="mina_in"></textarea>
+        <label>المنصرف</label><textarea id="mina_out"></textarea>
+        <label>حالة التشغيل في المناطق</label><textarea id="mina_status"></textarea>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>🔵 ثانياً: مشعر مزدلفة</h2>
+      <div class="section-block">
+        <label>الوارد</label><textarea id="mzd_in"></textarea>
+        <label>المنصرف</label><textarea id="mzd_out"></textarea>
+        <label>حالة التشغيل في المناطق</label><textarea id="mzd_status"></textarea>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>🟠 ثالثاً: مشعر عرفة</h2>
+      <div class="section-block">
+        <label>الوارد</label><textarea id="arf_in"></textarea>
+        <label>المنصرف</label><textarea id="arf_out"></textarea>
+        <label>حالة التشغيل في المناطق</label><textarea id="arf_status"></textarea>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>⚠️ انكسارات منى ومزدلفة</h2>
+      <div class="grid4">
+        <div><label>عدد الانكسارات</label><input type="number" id="mm_breaks" min="0"></div>
+        <div><label>جاري العمل</label><input type="number" id="mm_inprogress" min="0"></div>
+        <div><label>المعلق</label><input type="number" id="mm_pending" min="0"></div>
+        <div><label>المغلق</label><input type="number" id="mm_closed" min="0"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>⚠️ انكسارات عرفة</h2>
+      <div class="grid4">
+        <div><label>عدد الانكسارات</label><input type="number" id="ar_breaks" min="0"></div>
+        <div><label>جاري العمل</label><input type="number" id="ar_inprogress" min="0"></div>
+        <div><label>المعلق</label><input type="number" id="ar_pending" min="0"></div>
+        <div><label>المغلق</label><input type="number" id="ar_closed" min="0"></div>
+      </div>
+    </div>
+
+    <button class="btn" id="saveBtn" onclick="saveEntry()">💾 حفظ / تحديث بيانات اليوم</button>
+    <p class="small-note" style="text-align:center;">سيتم حفظ البيانات في جدول جوجل شيت الخاص بكم.</p>
+  </div>
+</div>
+
+<div id="detailModal"><div class="sheet" id="detailSheet"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+let allReports = {};
+const weekdayNamesAr = ["الأحد","الإثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت"];
+
+function todayStr(){ return new Date().toISOString().slice(0,10); }
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2200);
+}
+
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.tab+'-tab').classList.add('active');
+  });
+});
+
+const dateInput = document.getElementById('f_date');
+dateInput.value = todayStr();
+autoWeekday();
+dateInput.addEventListener('change', autoWeekday);
+function autoWeekday(){
+  try{
+    const d = new Date(dateInput.value+'T00:00:00');
+    if(!isNaN(d)) document.getElementById('f_weekday').value = weekdayNamesAr[d.getDay()];
+  }catch(e){}
+}
+
+function isConfigured(){
+  return APPS_SCRIPT_URL && APPS_SCRIPT_URL.indexOf('PASTE_YOUR') === -1;
+}
+
+async function init(){
+  if(!isConfigured()){
+    document.getElementById('setupWarning').style.display = 'block';
+    document.getElementById('connDot').classList.add('offline');
+    document.getElementById('connText').textContent = 'لم يتم الربط بقاعدة البيانات بعد';
+    renderList();
+    return;
+  }
+  await loadReports();
+  // تحديث تلقائي كل 20 ثانية + عند الرجوع للصفحة
+  setInterval(loadReports, 20000);
+  document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) loadReports(); });
+}
+
+async function loadReports(){
+  try{
+    const res = await fetch(APPS_SCRIPT_URL, { method:'GET' });
+    const data = await res.json();
+    allReports = {};
+    data.forEach(r=>{ allReports[r.date] = r; });
+    document.getElementById('connDot').className = 'status-dot synced';
+    document.getElementById('connText').textContent = 'متصل — آخر تحديث ' + new Date().toLocaleTimeString('ar-EG');
+    renderList();
+  }catch(e){
+    console.error(e);
+    document.getElementById('connDot').className = 'status-dot offline';
+    document.getElementById('connText').textContent = 'تعذر الاتصال بقاعدة البيانات';
+  }
+}
+
+function refreshList(){ loadReports(); showToast('جاري التحديث...'); }
+
+async function saveEntry(){
+  if(!isConfigured()){ showToast('⚠️ اضبط رابط قاعدة البيانات أولاً'); return; }
+  const date = dateInput.value;
+  if(!date){ showToast('يرجى اختيار التاريخ'); return; }
+
+  const payload = {
+    date,
+    weekday: val('f_weekday'),
+    author: val('f_author'),
+    updatedAt: new Date().toISOString(),
+    mina_incoming: val('mina_in'), mina_outgoing: val('mina_out'), mina_status: val('mina_status'),
+    mzd_incoming: val('mzd_in'), mzd_outgoing: val('mzd_out'), mzd_status: val('mzd_status'),
+    arf_incoming: val('arf_in'), arf_outgoing: val('arf_out'), arf_status: val('arf_status'),
+    mm_breaks: numVal('mm_breaks'), mm_inprogress: numVal('mm_inprogress'),
+    mm_pending: numVal('mm_pending'), mm_closed: numVal('mm_closed'),
+    ar_breaks: numVal('ar_breaks'), ar_inprogress: numVal('ar_inprogress'),
+    ar_pending: numVal('ar_pending'), ar_closed: numVal('ar_closed'),
+  };
+
+  const btn = document.getElementById('saveBtn');
+  btn.disabled = true; btn.textContent = '⏳ جارٍ الحفظ...';
+  try{
+    // نستخدم body كنص عادي لتفادي مشاكل CORS مع Apps Script
+    await fetch(APPS_SCRIPT_URL, { method:'POST', body: JSON.stringify(payload) });
+    showToast('✅ تم حفظ بيانات ' + date);
+    allReports[date] = mapPayloadToReport(payload);
+    renderList();
+    document.querySelector('.tab-btn[data-tab="view"]').click();
+  }catch(e){
+    console.error(e);
+    showToast('⚠️ تعذر الحفظ، تحقق من الاتصال');
+  }finally{
+    btn.disabled = false; btn.textContent = '💾 حفظ / تحديث بيانات اليوم';
+  }
+}
+
+function mapPayloadToReport(p){ return p; } // نفس الحقول المسطحة تُستخدم مباشرة في العرض
+
+function val(id){ return (document.getElementById(id).value||'').trim(); }
+function numVal(id){ const v = document.getElementById(id).value; return v===''? 0 : parseInt(v,10); }
+
+function renderList(){
+  const cont = document.getElementById('daysList');
+  const dates = Object.keys(allReports).sort().reverse();
+  if(dates.length===0){
+    cont.innerHTML = `<div class="empty-state"><div>📭</div>لا توجد بيانات مسجلة بعد.<br>استخدم تبويب "تسجيل يومي" لإضافة أول تحديث.</div>`;
+    return;
+  }
+  cont.innerHTML = dates.map(date=>{
+    const r = allReports[date];
+    const totalBreaksOpen = (Number(r.mm_breaks)||0) + (Number(r.ar_breaks)||0);
+    const anyIsolated = /معزول|مغلق|كسر|متوقف/.test((r.mina_status||'')+(r.mzd_status||'')+(r.arf_status||''));
+    let badge = '<span class="badge">مستقر</span>';
+    if(anyIsolated) badge = '<span class="badge warn">يوجد عزل/كسر</span>';
+    if(totalBreaksOpen > 5) badge = '<span class="badge danger">انكسارات مرتفعة</span>';
+    return `<div class="day-card" onclick="openDetail('${date}')">
+      <div class="row1"><b>${date} ${r.weekday? '· '+escapeHtml(r.weekday) : ''}</b>${badge}</div>
+      <div class="meta-line">${r.author? 'سجّله: '+escapeHtml(r.author)+' · ':''} آخر تحديث: ${formatTime(r.updatedAt)}</div>
+    </div>`;
+  }).join('');
+}
+
+function formatTime(iso){
+  if(!iso) return '-';
+  try{ return new Date(iso).toLocaleString('ar-EG', {day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}); }
+  catch(e){ return iso; }
+}
+function escapeHtml(s){ return (s||'').toString().replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+function openDetail(date){
+  const r = allReports[date];
+  if(!r) return;
+  const sheet = document.getElementById('detailSheet');
+  sheet.innerHTML = `
+    <button class="close-btn" onclick="closeDetail()">✕</button>
+    <h2 style="margin-top:0;">📅 ${date}${r.weekday? ' — '+escapeHtml(r.weekday):''}</h2>
+    ${sectionHtml('🟢 مشعر منى', r.mina_incoming, r.mina_outgoing, r.mina_status)}
+    ${sectionHtml('🔵 مشعر مزدلفة', r.mzd_incoming, r.mzd_outgoing, r.mzd_status)}
+    ${sectionHtml('🟠 مشعر عرفة', r.arf_incoming, r.arf_outgoing, r.arf_status)}
+    <div class="detail-section">
+      <h4>⚠️ انكسارات منى ومزدلفة</h4>
+      <div class="stats-row">
+        <div class="stat-pill">الانكسارات<b>${r.mm_breaks??0}</b></div>
+        <div class="stat-pill">جاري العمل<b>${r.mm_inprogress??0}</b></div>
+        <div class="stat-pill">المعلق<b>${r.mm_pending??0}</b></div>
+        <div class="stat-pill">المغلق<b>${r.mm_closed??0}</b></div>
+      </div>
+    </div>
+    <div class="detail-section">
+      <h4>⚠️ انكسارات عرفة</h4>
+      <div class="stats-row">
+        <div class="stat-pill">الانكسارات<b>${r.ar_breaks??0}</b></div>
+        <div class="stat-pill">جاري العمل<b>${r.ar_inprogress??0}</b></div>
+        <div class="stat-pill">المعلق<b>${r.ar_pending??0}</b></div>
+        <div class="stat-pill">المغلق<b>${r.ar_closed??0}</b></div>
+      </div>
+    </div>
+    <p class="small-note">${r.author? 'سجّله: '+escapeHtml(r.author)+' · ':''}آخر تحديث: ${formatTime(r.updatedAt)}</p>
+    <button class="btn secondary" onclick="loadIntoForm('${date}')">✏️ فتح للتعديل</button>
+  `;
+  document.getElementById('detailModal').classList.add('show');
+}
+function sectionHtml(title, incoming, outgoing, status){
+  return `<div class="detail-section">
+    <h4>${title}</h4>
+    <label style="margin-top:0;">الوارد</label><div class="detail-box">${escapeHtml(incoming)||'—'}</div>
+    <label>المنصرف</label><div class="detail-box">${escapeHtml(outgoing)||'—'}</div>
+    <label>حالة التشغيل في المناطق</label><div class="detail-box">${escapeHtml(status)||'—'}</div>
+  </div>`;
+}
+function closeDetail(){ document.getElementById('detailModal').classList.remove('show'); }
+document.getElementById('detailModal').addEventListener('click', (e)=>{ if(e.target.id==='detailModal') closeDetail(); });
+
+function loadIntoForm(date){
+  const r = allReports[date];
+  if(!r) return;
+  closeDetail();
+  dateInput.value = date;
+  document.getElementById('f_weekday').value = r.weekday||'';
+  document.getElementById('f_author').value = r.author||'';
+  document.getElementById('mina_in').value = r.mina_incoming||'';
+  document.getElementById('mina_out').value = r.mina_outgoing||'';
+  document.getElementById('mina_status').value = r.mina_status||'';
+  document.getElementById('mzd_in').value = r.mzd_incoming||'';
+  document.getElementById('mzd_out').value = r.mzd_outgoing||'';
+  document.getElementById('mzd_status').value = r.mzd_status||'';
+  document.getElementById('arf_in').value = r.arf_incoming||'';
+  document.getElementById('arf_out').value = r.arf_outgoing||'';
+  document.getElementById('arf_status').value = r.arf_status||'';
+  document.getElementById('mm_breaks').value = r.mm_breaks??'';
+  document.getElementById('mm_inprogress').value = r.mm_inprogress??'';
+  document.getElementById('mm_pending').value = r.mm_pending??'';
+  document.getElementById('mm_closed').value = r.mm_closed??'';
+  document.getElementById('ar_breaks').value = r.ar_breaks??'';
+  document.getElementById('ar_inprogress').value = r.ar_inprogress??'';
+  document.getElementById('ar_pending').value = r.ar_pending??'';
+  document.getElementById('ar_closed').value = r.ar_closed??'';
+  document.querySelector('.tab-btn[data-tab="entry"]').click();
+}
+
+init();
+</script>
+</body>
+</html>
