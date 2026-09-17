@@ -4,16 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>الحالة التشغيلية للمشاعر المقدسة</title>
-<style>
-  /* ===== عدّل هذا السطر بعد نشر Apps Script ===== */
-</style>
-</head>
-<body>
 <script>
   // ================================================================
   // 👇 الصق هنا رابط الـ Web App بتاع Apps Script بعد نشره (Deploy)
-  const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz0y6ib4aVi04zVNcQ4mFz9OHwRJkELFM4uprevVCWQmSGus5mGp6i0HqnywZ15FpHK/exec";
+  const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzGa-Pyd6kRF-JjL20FCvFE4Xke0hZDv-PdSPaIcEwRVCnfOw0-hVq8nghXPG06vHKj/exec";
   // مثال: https://script.google.com/macros/s/AKfycb.../exec
+
+  // 👇 غيّر الرقم ده لأي PIN تحب تحميه بيه (أرقام أو حروف، أي طول)
+  const SITE_PIN = "1607";
   // ================================================================
 </script>
 <style>
@@ -70,9 +68,49 @@
   .status-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-left:4px;}
   .synced{background:#22c55e;} .offline{background:var(--warn);}
   .warn-banner{background:var(--warn-soft);color:var(--warn);border:1px solid var(--warn);border-radius:10px;padding:10px 14px;font-size:13px;margin-bottom:14px;}
+  #pinLock{position:fixed;inset:0;background:linear-gradient(135deg,var(--accent-dark),var(--accent));display:flex;align-items:center;justify-content:center;z-index:5000;padding:20px;}
+  #pinLock .box{background:#fff;border-radius:18px;padding:28px 22px;max-width:340px;width:100%;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.25);}
+  #pinLock .box .icon{font-size:38px;margin-bottom:8px;}
+  #pinLock .box h3{margin:0 0 6px;font-size:17px;color:var(--text);}
+  #pinLock .box p{margin:0 0 16px;font-size:13px;color:var(--text-dim);}
+  #pinLock input{width:100%;padding:14px;border:1px solid var(--border);border-radius:10px;font-size:22px;text-align:center;letter-spacing:6px;margin-bottom:12px;}
+  #pinLock button{width:100%;padding:13px;border:none;border-radius:10px;background:var(--accent);color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;}
+  #pinLock .err{color:var(--danger);font-size:12px;margin-top:10px;min-height:16px;}
+  .checklist{border:1px solid var(--border);border-radius:10px;background:var(--bg);padding:6px 10px;max-height:220px;overflow-y:auto;}
+  .check-item{display:flex;align-items:center;gap:8px;padding:8px 2px;font-size:14px;border-bottom:1px solid var(--border);cursor:pointer;}
+  .check-item:last-child{border-bottom:none;}
+  .check-item input{width:auto;margin:0;}
+  details.dropdown{border:1px solid var(--border);border-radius:10px;background:#fff;overflow:hidden;}
+  details.dropdown summary{
+    list-style:none;cursor:pointer;padding:12px 14px;font-size:14px;color:var(--text);
+    display:flex;justify-content:space-between;align-items:center;background:var(--bg);
+  }
+  details.dropdown summary::-webkit-details-marker{display:none;}
+  details.dropdown summary::after{content:'▾';color:var(--text-dim);font-size:12px;margin-right:6px;transition:transform .15s;}
+  details.dropdown[open] summary::after{transform:rotate(180deg);}
+  details.dropdown .checklist{border:none;border-radius:0;border-top:1px solid var(--border);max-height:240px;}
+  details.dropdown summary .summary-text{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;}
+  .zone-builder{border:1px solid var(--border);border-radius:10px;background:var(--bg);padding:10px;}
+  .zone-row{display:flex;gap:6px;flex-wrap:wrap;}
+  .zone-row select{flex:1;min-width:110px;padding:9px;border:1px solid var(--border);border-radius:8px;background:#fff;color:var(--text);font-size:13px;font-family:inherit;}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;}
+  .chip{background:var(--warn-soft);color:var(--warn);border:1px solid var(--warn);border-radius:999px;padding:5px 10px;font-size:12px;display:flex;align-items:center;gap:6px;}
+  .chip b{cursor:pointer;font-size:13px;}
+  .default-note{font-size:12px;color:var(--text-dim);margin-top:8px;}
 </style>
 </head>
 <body>
+
+<div id="pinLock">
+  <div class="box">
+    <div class="icon">🔒</div>
+    <h3>دخول محمي</h3>
+    <p>ادخل رمز الدخول (PIN) للمتابعة</p>
+    <input type="password" inputmode="numeric" id="pinInput" placeholder="••••" autofocus>
+    <button onclick="checkPin()">دخول</button>
+    <div class="err" id="pinErr"></div>
+  </div>
+</div>
 
 <header>
   <h1>🕋 الحالة التشغيلية للمشاعر المقدسة</h1>
@@ -114,27 +152,120 @@
     <div class="card">
       <h2>🟢 أولاً: مشعر منى</h2>
       <div class="section-block">
-        <label>الوارد</label><textarea id="mina_in"></textarea>
-        <label>المنصرف</label><textarea id="mina_out"></textarea>
-        <label>حالة التشغيل في المناطق</label><textarea id="mina_status"></textarea>
+        <label>الوارد</label>
+        <div class="zone-builder">
+          <div class="zone-row">
+            <select id="mina_in_select"></select>
+            <button type="button" class="btn secondary" style="width:auto;margin:0;padding:9px 14px;" onclick="addListItem('mina_in')">+ إضافة</button>
+          </div>
+          <div class="chips" id="mina_in_chips"></div>
+        </div>
+        <textarea id="mina_in" style="display:none;"></textarea>
+
+        <label>المنصرف</label>
+        <div class="zone-builder">
+          <div class="zone-row">
+            <select id="mina_out_select"></select>
+            <button type="button" class="btn secondary" style="width:auto;margin:0;padding:9px 14px;" onclick="addListItem('mina_out')">+ إضافة</button>
+          </div>
+          <div class="chips" id="mina_out_chips"></div>
+        </div>
+        <textarea id="mina_out" style="display:none;"></textarea>
+
+        <label>حالة التشغيل في المناطق</label>
+        <div class="zone-builder">
+          <div class="zone-row">
+            <select id="mina_zone_select"></select>
+            <select id="mina_zone_status_select">
+              <option value="معزولة بالكامل">معزولة بالكامل</option>
+              <option value="معزولة جزئياً">معزولة جزئياً</option>
+            </select>
+            <button type="button" class="btn secondary" style="width:auto;margin:0;padding:9px 14px;" onclick="addException('mina')">+ إضافة</button>
+          </div>
+          <div class="chips" id="mina_exceptions_chips"></div>
+          <div class="default-note">لو مفيش استثناءات مضافة، هيتسجل تلقائيًا "جميع المناطق مخدومة".</div>
+        </div>
+        <textarea id="mina_status" style="display:none;"></textarea>
       </div>
     </div>
 
     <div class="card">
       <h2>🔵 ثانياً: مشعر مزدلفة</h2>
       <div class="section-block">
-        <label>الوارد</label><textarea id="mzd_in"></textarea>
-        <label>المنصرف</label><textarea id="mzd_out"></textarea>
-        <label>حالة التشغيل في المناطق</label><textarea id="mzd_status"></textarea>
+        <label>الوارد</label>
+        <div class="zone-builder">
+          <div class="zone-row">
+            <select id="mzd_in_select"></select>
+            <button type="button" class="btn secondary" style="width:auto;margin:0;padding:9px 14px;" onclick="addListItem('mzd_in')">+ إضافة</button>
+          </div>
+          <div class="chips" id="mzd_in_chips"></div>
+        </div>
+        <textarea id="mzd_in" style="display:none;"></textarea>
+
+        <label>المنصرف</label>
+        <div class="zone-builder">
+          <div class="zone-row">
+            <select id="mzd_out_select"></select>
+            <button type="button" class="btn secondary" style="width:auto;margin:0;padding:9px 14px;" onclick="addListItem('mzd_out')">+ إضافة</button>
+          </div>
+          <div class="chips" id="mzd_out_chips"></div>
+        </div>
+        <textarea id="mzd_out" style="display:none;"></textarea>
+
+        <label>حالة التشغيل في المناطق</label>
+        <div class="zone-builder">
+          <div class="zone-row">
+            <select id="mzd_zone_select"></select>
+            <select id="mzd_zone_status_select">
+              <option value="معزولة بالكامل">معزولة بالكامل</option>
+              <option value="معزولة جزئياً">معزولة جزئياً</option>
+            </select>
+            <button type="button" class="btn secondary" style="width:auto;margin:0;padding:9px 14px;" onclick="addException('mzd')">+ إضافة</button>
+          </div>
+          <div class="chips" id="mzd_exceptions_chips"></div>
+          <div class="default-note"></div>
+        </div>
+        <textarea id="mzd_status" style="display:none;"></textarea>
       </div>
     </div>
 
     <div class="card">
       <h2>🟠 ثالثاً: مشعر عرفة</h2>
       <div class="section-block">
-        <label>الوارد</label><textarea id="arf_in"></textarea>
-        <label>المنصرف</label><textarea id="arf_out"></textarea>
-        <label>حالة التشغيل في المناطق</label><textarea id="arf_status"></textarea>
+        <label>الوارد</label>
+        <div class="zone-builder">
+          <div class="zone-row">
+            <select id="arf_in_select"></select>
+            <button type="button" class="btn secondary" style="width:auto;margin:0;padding:9px 14px;" onclick="addListItem('arf_in')">+ إضافة</button>
+          </div>
+          <div class="chips" id="arf_in_chips"></div>
+        </div>
+        <textarea id="arf_in" style="display:none;"></textarea>
+
+        <label>المنصرف</label>
+        <div class="zone-builder">
+          <div class="zone-row">
+            <select id="arf_out_select"></select>
+            <button type="button" class="btn secondary" style="width:auto;margin:0;padding:9px 14px;" onclick="addListItem('arf_out')">+ إضافة</button>
+          </div>
+          <div class="chips" id="arf_out_chips"></div>
+        </div>
+        <textarea id="arf_out" style="display:none;"></textarea>
+
+        <label>حالة التشغيل في المناطق</label>
+        <div class="zone-builder">
+          <div class="zone-row">
+            <select id="arf_zone_select"></select>
+            <select id="arf_zone_status_select">
+              <option value="معزولة بالكامل">معزولة بالكامل</option>
+              <option value="معزولة جزئياً">معزولة جزئياً</option>
+            </select>
+            <button type="button" class="btn secondary" style="width:auto;margin:0;padding:9px 14px;" onclick="addException('arf')">+ إضافة</button>
+          </div>
+          <div class="chips" id="arf_exceptions_chips"></div>
+          <div class="default-note"></div>
+        </div>
+        <textarea id="arf_status" style="display:none;"></textarea>
       </div>
     </div>
 
@@ -167,8 +298,188 @@
 <div class="toast" id="toast"></div>
 
 <script>
+// ---------- حماية PIN ----------
+(function(){
+  const LOCK_KEY = 'mashaer_pin_ok_v1';
+  const lockEl = document.getElementById('pinLock');
+  const input = document.getElementById('pinInput');
+  const errEl = document.getElementById('pinErr');
+
+  if(!SITE_PIN || localStorage.getItem(LOCK_KEY) === SITE_PIN){
+    lockEl.style.display = 'none';
+  } else {
+    document.body.style.overflow = 'hidden';
+  }
+
+  window.checkPin = function(){
+    if(input.value === SITE_PIN){
+      localStorage.setItem(LOCK_KEY, SITE_PIN);
+      lockEl.style.display = 'none';
+      document.body.style.overflow = '';
+    } else {
+      errEl.textContent = 'الرمز غير صحيح، حاول مرة أخرى';
+      input.value = '';
+      input.focus();
+    }
+  };
+  input && input.addEventListener('keydown', (e)=>{
+    if(e.key === 'Enter') checkPin();
+  });
+})();
+
 let allReports = {};
 const weekdayNamesAr = ["الأحد","الإثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت"];
+
+// ================================================================
+// 👇 هنا تقدر تضيف / تشيل / تعدل العناصر الثابتة (data validation)
+const OPTIONS = {
+  mina_in: [
+  'Baiya Upper',
+  'King Fahd',
+  'Mina Main',
+  'Mina 3RD Phase',
+  'QUSOR',
+  'R. Alkhief K.',
+  'Al Shaebayn 10',
+  'Al Shaebayn 206',
+  'Al Shaebayn 207',
+  'Al Shaebayn 208',
+  'Al Shaebayn 20',
+  'Malkan',
+  'R. Alkhief Steel',
+  'Baiya Lower',
+  'Mina Fire',
+  'Mina Cooling',
+  'Moisam'
+],
+
+  mina_out: [
+  'Baiya Upper',
+  'King Fahd',
+  'Mina Main',
+  'Mina 3RD Phase',
+  'QUSOR',
+  'R. Alkhief K.',
+  'Al Shaebayn 10',
+  'Al Shaebayn 206',
+  'Al Shaebayn 207',
+  'Al Shaebayn 208',
+  'Al Shaebayn 20',
+  'Malkan',
+  'R. Alkhief Steel',
+  'Baiya Lower',
+  'Mina Fire',
+  'Mina Cooling',
+  'Moisam'
+],
+
+  mzd_in: [
+  'Mozdalifa Main',
+  'Mozdalifa Fire',
+  'Tradodiya'
+],
+
+  mzd_out:[
+  'Mozdalifa Main',
+  'Mozdalifa Fire',
+  'Tradodiya'
+],
+
+  arf_in: [
+  'ARAFAT CONCRET',
+  'ARAFAT FIRE',
+  'ARAFAT Steel',
+  'ARAFAT OLD'
+],
+
+  arf_out: [
+  'ARAFAT CONCRET',
+  'ARAFAT FIRE',
+  'ARAFAT Steel',
+  'ARAFAT OLD'
+],
+
+};
+// 👇 أسماء المناطق لكل مشعر — عدّل هذه القوائم بأسمائكم الفعلية
+const ZONES = {
+mina: ['منى 1','منى 2','منى 3','منى 4','منى 5','منى 6','منى 7','منى 8','منى 9','منى 10','منى 11'],
+mzd: ['مزدلفة 1','مزدلفة 2','مزدلفة 3','مزدلفة 4','مزدلفة 5'],
+arf: ['عرفات 1','عرفات 2','عرفات 3','عرفات 4','عرفات 5','عرفات 6','عرفات 7','عرفات 8'],
+};
+// ================================================================
+
+const exceptionsState = { mina: [], mzd: [], arf: [] };
+
+function populateSelect(fieldId){
+  const sel = document.getElementById(fieldId+'_select');
+  if(!sel) return;
+  sel.innerHTML = OPTIONS[fieldId].map(o=>`<option value="${escapeHtml(o)}">${escapeHtml(o)}</option>`).join('');
+}
+function addListItem(fieldId){
+  const sel = document.getElementById(fieldId+'_select');
+  const val = sel.value;
+  if(!val) return;
+  const current = (document.getElementById(fieldId).value||'').split('\n').map(s=>s.trim()).filter(Boolean);
+  if(!current.includes(val)) current.push(val);
+  document.getElementById(fieldId).value = current.join('\n');
+  renderListChips(fieldId);
+}
+function removeListItem(fieldId, val){
+  const current = (document.getElementById(fieldId).value||'').split('\n').map(s=>s.trim()).filter(Boolean).filter(v=>v!==val);
+  document.getElementById(fieldId).value = current.join('\n');
+  renderListChips(fieldId);
+}
+function renderListChips(fieldId){
+  const cont = document.getElementById(fieldId+'_chips');
+  if(!cont) return;
+  const current = (document.getElementById(fieldId).value||'').split('\n').map(s=>s.trim()).filter(Boolean);
+  cont.innerHTML = current.map(v=>
+    `<span class="chip">${escapeHtml(v)} <b onclick="removeListItem('${fieldId}','${v.replace(/'/g,"\\'")}')">✕</b></span>`
+  ).join('');
+}
+
+function populateZoneSelect(mesh){
+  const sel = document.getElementById(mesh+'_zone_select');
+  sel.innerHTML = ZONES[mesh].map(z=>`<option value="${escapeHtml(z)}">${escapeHtml(z)}</option>`).join('');
+}
+function addException(mesh){
+  const zone = document.getElementById(mesh+'_zone_select').value;
+  const status = document.getElementById(mesh+'_zone_status_select').value;
+  if(!zone) return;
+  exceptionsState[mesh] = exceptionsState[mesh].filter(e=>e.zone!==zone);
+  exceptionsState[mesh].push({zone, status});
+  renderExceptions(mesh);
+}
+function removeException(mesh, zone){
+  exceptionsState[mesh] = exceptionsState[mesh].filter(e=>e.zone!==zone);
+  renderExceptions(mesh);
+}
+function renderExceptions(mesh){
+  const fieldId = mesh+'_status';
+  const list = exceptionsState[mesh];
+  document.getElementById(mesh+'_exceptions_chips').innerHTML = list.map(e=>
+    `<span class="chip">${escapeHtml(e.zone)} — ${escapeHtml(e.status)} <b onclick="removeException('${mesh}','${e.zone.replace(/'/g,"\\'")}')">✕</b></span>`
+  ).join('');
+  document.getElementById(fieldId).value = buildStatusText(list);
+}
+function buildStatusText(list){
+  if(!list.length) return 'جميع المناطق مخدومة';
+  return 'جميع المناطق مخدومة ماعدا: ' + list.map(e=>`${e.zone} (${e.status})`).join('، ');
+}
+function parseStatusText(mesh, text){
+  exceptionsState[mesh] = [];
+  const m = (text||'').match(/ماعدا:\s*(.*)$/);
+  if(m){
+    m[1].split(/[،,]/).map(s=>s.trim()).filter(Boolean).forEach(p=>{
+      const mm = p.match(/^(.*)\((.*)\)$/);
+      if(mm) exceptionsState[mesh].push({zone: mm[1].trim(), status: mm[2].trim()});
+    });
+  }
+  renderExceptions(mesh);
+}
+
+['mina_in','mina_out','mzd_in','mzd_out','arf_in','arf_out'].forEach(fid=>{ populateSelect(fid); renderListChips(fid); });
+['mina','mzd','arf'].forEach(m=>{ populateZoneSelect(m); renderExceptions(m); });
 
 function todayStr(){ return new Date().toISOString().slice(0,10); }
 function showToast(msg){
@@ -210,7 +521,6 @@ async function init(){
     return;
   }
   await loadReports();
-  // تحديث تلقائي كل 20 ثانية + عند الرجوع للصفحة
   setInterval(loadReports, 20000);
   document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) loadReports(); });
 }
@@ -255,7 +565,6 @@ async function saveEntry(){
   const btn = document.getElementById('saveBtn');
   btn.disabled = true; btn.textContent = '⏳ جارٍ الحفظ...';
   try{
-    // نستخدم body كنص عادي لتفادي مشاكل CORS مع Apps Script
     await fetch(APPS_SCRIPT_URL, { method:'POST', body: JSON.stringify(payload) });
     showToast('✅ تم حفظ بيانات ' + date);
     allReports[date] = mapPayloadToReport(payload);
@@ -269,7 +578,7 @@ async function saveEntry(){
   }
 }
 
-function mapPayloadToReport(p){ return p; } // نفس الحقول المسطحة تُستخدم مباشرة في العرض
+function mapPayloadToReport(p){ return p; }
 
 function val(id){ return (document.getElementById(id).value||'').trim(); }
 function numVal(id){ const v = document.getElementById(id).value; return v===''? 0 : parseInt(v,10); }
@@ -288,9 +597,15 @@ function renderList(){
     let badge = '<span class="badge">مستقر</span>';
     if(anyIsolated) badge = '<span class="badge warn">يوجد عزل/كسر</span>';
     if(totalBreaksOpen > 5) badge = '<span class="badge danger">انكسارات مرتفعة</span>';
-    return `<div class="day-card" onclick="openDetail('${date}')">
-      <div class="row1"><b>${date} ${r.weekday? '· '+escapeHtml(r.weekday) : ''}</b>${badge}</div>
-      <div class="meta-line">${r.author? 'سجّله: '+escapeHtml(r.author)+' · ':''} آخر تحديث: ${formatTime(r.updatedAt)}</div>
+    return `<div class="day-card" data-date="${date}">
+      <div class="day-card-body">
+        <div class="row1"><b>${date} ${r.weekday? '· '+escapeHtml(r.weekday) : ''}</b>${badge}</div>
+        <div class="meta-line">${r.author? 'سجّله: '+escapeHtml(r.author)+' · ':''} آخر تحديث: ${formatTime(r.updatedAt)}</div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:10px;">
+        <button type="button" class="btn secondary" style="margin:0;padding:8px;font-size:13px;" data-action="edit">✏️ تعديل</button>
+        <button type="button" class="btn secondary" style="margin:0;padding:8px;font-size:13px;color:var(--danger);border-color:var(--danger);" data-action="delete">🗑️ حذف</button>
+      </div>
     </div>`;
   }).join('');
 }
@@ -331,7 +646,10 @@ function openDetail(date){
       </div>
     </div>
     <p class="small-note">${r.author? 'سجّله: '+escapeHtml(r.author)+' · ':''}آخر تحديث: ${formatTime(r.updatedAt)}</p>
-    <button class="btn secondary" onclick="loadIntoForm('${date}')">✏️ فتح للتعديل</button>
+    <div style="display:flex;gap:8px;">
+      <button class="btn secondary" style="margin-top:0;" onclick="loadIntoForm('${date}')">✏️ تعديل</button>
+      <button class="btn secondary" style="margin-top:0;color:var(--danger);border-color:var(--danger);" onclick="deleteEntry('${date}')">🗑️ حذف</button>
+    </div>
   `;
   document.getElementById('detailModal').classList.add('show');
 }
@@ -344,7 +662,35 @@ function sectionHtml(title, incoming, outgoing, status){
   </div>`;
 }
 function closeDetail(){ document.getElementById('detailModal').classList.remove('show'); }
+document.getElementById('daysList').addEventListener('click', (e)=>{
+  const btn = e.target.closest('button[data-action]');
+  const card = e.target.closest('.day-card');
+  if(!card) return;
+  const date = card.dataset.date;
+  if(btn){
+    if(btn.dataset.action === 'edit') loadIntoForm(date);
+    if(btn.dataset.action === 'delete') deleteEntry(date);
+  } else {
+    openDetail(date);
+  }
+});
+
 document.getElementById('detailModal').addEventListener('click', (e)=>{ if(e.target.id==='detailModal') closeDetail(); });
+
+async function deleteEntry(date){
+  const sure = confirm('هل أنت متأكد من حذف بيانات يوم ' + date + '؟ لا يمكن التراجع عن هذا الإجراء.');
+  if(!sure) return;
+  try{
+    await fetch(APPS_SCRIPT_URL, { method:'POST', body: JSON.stringify({ date, action: 'delete' }) });
+    delete allReports[date];
+    closeDetail();
+    renderList();
+    showToast('🗑️ تم حذف بيانات ' + date);
+  }catch(e){
+    console.error(e);
+    showToast('⚠️ تعذر الحذف، تحقق من الاتصال');
+  }
+}
 
 function loadIntoForm(date){
   const r = allReports[date];
@@ -355,13 +701,14 @@ function loadIntoForm(date){
   document.getElementById('f_author').value = r.author||'';
   document.getElementById('mina_in').value = r.mina_incoming||'';
   document.getElementById('mina_out').value = r.mina_outgoing||'';
-  document.getElementById('mina_status').value = r.mina_status||'';
   document.getElementById('mzd_in').value = r.mzd_incoming||'';
   document.getElementById('mzd_out').value = r.mzd_outgoing||'';
-  document.getElementById('mzd_status').value = r.mzd_status||'';
   document.getElementById('arf_in').value = r.arf_incoming||'';
   document.getElementById('arf_out').value = r.arf_outgoing||'';
-  document.getElementById('arf_status').value = r.arf_status||'';
+  ['mina_in','mina_out','mzd_in','mzd_out','arf_in','arf_out'].forEach(renderListChips);
+  parseStatusText('mina', r.mina_status||'');
+  parseStatusText('mzd', r.mzd_status||'');
+  parseStatusText('arf', r.arf_status||'');
   document.getElementById('mm_breaks').value = r.mm_breaks??'';
   document.getElementById('mm_inprogress').value = r.mm_inprogress??'';
   document.getElementById('mm_pending').value = r.mm_pending??'';
