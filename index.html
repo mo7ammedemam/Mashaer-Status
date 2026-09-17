@@ -180,6 +180,7 @@
               <option value="معزولة بالكامل">معزولة بالكامل</option>
               <option value="معزولة جزئياً">معزولة جزئياً</option>
             </select>
+            <input type="text" id="mina_zone_reason_input" placeholder="سبب العزل (اختياري)" style="flex:2;min-width:140px;">
             <button type="button" class="btn secondary" style="width:auto;margin:0;padding:9px 14px;" onclick="addException('mina')">+ إضافة</button>
           </div>
           <div class="chips" id="mina_exceptions_chips"></div>
@@ -220,6 +221,7 @@
               <option value="معزولة بالكامل">معزولة بالكامل</option>
               <option value="معزولة جزئياً">معزولة جزئياً</option>
             </select>
+            <input type="text" id="mzd_zone_reason_input" placeholder="سبب العزل (اختياري)" style="flex:2;min-width:140px;">
             <button type="button" class="btn secondary" style="width:auto;margin:0;padding:9px 14px;" onclick="addException('mzd')">+ إضافة</button>
           </div>
           <div class="chips" id="mzd_exceptions_chips"></div>
@@ -260,6 +262,7 @@
               <option value="معزولة بالكامل">معزولة بالكامل</option>
               <option value="معزولة جزئياً">معزولة جزئياً</option>
             </select>
+            <input type="text" id="arf_zone_reason_input" placeholder="سبب العزل (اختياري)" style="flex:2;min-width:140px;">
             <button type="button" class="btn secondary" style="width:auto;margin:0;padding:9px 14px;" onclick="addException('arf')">+ إضافة</button>
           </div>
           <div class="chips" id="arf_exceptions_chips"></div>
@@ -270,12 +273,22 @@
     </div>
 
     <div class="card">
-      <h2>⚠️ انكسارات منى ومزدلفة</h2>
+      <h2>⚠️ انكسارات منى</h2>
       <div class="grid4">
-        <div><label>عدد الانكسارات</label><input type="number" id="mm_breaks" min="0"></div>
-        <div><label>جاري العمل</label><input type="number" id="mm_inprogress" min="0"></div>
-        <div><label>المعلق</label><input type="number" id="mm_pending" min="0"></div>
-        <div><label>المغلق</label><input type="number" id="mm_closed" min="0"></div>
+        <div><label>عدد الانكسارات</label><input type="number" id="mina_breaks" min="0"></div>
+        <div><label>جاري العمل</label><input type="number" id="mina_inprogress" min="0"></div>
+        <div><label>المعلق</label><input type="number" id="mina_pending" min="0"></div>
+        <div><label>المغلق</label><input type="number" id="mina_closed" min="0"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>⚠️ انكسارات مزدلفة</h2>
+      <div class="grid4">
+        <div><label>عدد الانكسارات</label><input type="number" id="mzd_breaks" min="0"></div>
+        <div><label>جاري العمل</label><input type="number" id="mzd_inprogress" min="0"></div>
+        <div><label>المعلق</label><input type="number" id="mzd_pending" min="0"></div>
+        <div><label>المغلق</label><input type="number" id="mzd_closed" min="0"></div>
       </div>
     </div>
 
@@ -445,9 +458,12 @@ function populateZoneSelect(mesh){
 function addException(mesh){
   const zone = document.getElementById(mesh+'_zone_select').value;
   const status = document.getElementById(mesh+'_zone_status_select').value;
+  const reasonInput = document.getElementById(mesh+'_zone_reason_input');
+  const reason = reasonInput ? reasonInput.value.trim() : '';
   if(!zone) return;
   exceptionsState[mesh] = exceptionsState[mesh].filter(e=>e.zone!==zone);
-  exceptionsState[mesh].push({zone, status});
+  exceptionsState[mesh].push({zone, status, reason});
+  if(reasonInput) reasonInput.value = '';
   renderExceptions(mesh);
 }
 function removeException(mesh, zone){
@@ -458,13 +474,15 @@ function renderExceptions(mesh){
   const fieldId = mesh+'_status';
   const list = exceptionsState[mesh];
   document.getElementById(mesh+'_exceptions_chips').innerHTML = list.map(e=>
-    `<span class="chip">${escapeHtml(e.zone)} — ${escapeHtml(e.status)} <b onclick="removeException('${mesh}','${e.zone.replace(/'/g,"\\'")}')">✕</b></span>`
+    `<span class="chip">${escapeHtml(e.zone)} — ${escapeHtml(e.status)}${e.reason? ' — '+escapeHtml(e.reason):''} <b onclick="removeException('${mesh}','${e.zone.replace(/'/g,"\\'")}')">✕</b></span>`
   ).join('');
   document.getElementById(fieldId).value = buildStatusText(list);
 }
 function buildStatusText(list){
   if(!list.length) return 'جميع المناطق مخدومة';
-  return 'جميع المناطق مخدومة ماعدا: ' + list.map(e=>`${e.zone} (${e.status})`).join('، ');
+  return 'جميع المناطق مخدومة ماعدا: ' + list.map(e=>
+    `${e.zone} (${e.status}${e.reason? ' - سبب: '+e.reason : ''})`
+  ).join('، ');
 }
 function parseStatusText(mesh, text){
   exceptionsState[mesh] = [];
@@ -472,7 +490,16 @@ function parseStatusText(mesh, text){
   if(m){
     m[1].split(/[،,]/).map(s=>s.trim()).filter(Boolean).forEach(p=>{
       const mm = p.match(/^(.*)\((.*)\)$/);
-      if(mm) exceptionsState[mesh].push({zone: mm[1].trim(), status: mm[2].trim()});
+      if(mm){
+        const zone = mm[1].trim();
+        const inner = mm[2].trim();
+        const reasonMatch = inner.match(/^(.*?)\s*-\s*سبب:\s*(.*)$/);
+        if(reasonMatch){
+          exceptionsState[mesh].push({zone, status: reasonMatch[1].trim(), reason: reasonMatch[2].trim()});
+        } else {
+          exceptionsState[mesh].push({zone, status: inner, reason: ''});
+        }
+      }
     });
   }
   renderExceptions(mesh);
@@ -556,8 +583,10 @@ async function saveEntry(){
     mina_incoming: val('mina_in'), mina_outgoing: val('mina_out'), mina_status: val('mina_status'),
     mzd_incoming: val('mzd_in'), mzd_outgoing: val('mzd_out'), mzd_status: val('mzd_status'),
     arf_incoming: val('arf_in'), arf_outgoing: val('arf_out'), arf_status: val('arf_status'),
-    mm_breaks: numVal('mm_breaks'), mm_inprogress: numVal('mm_inprogress'),
-    mm_pending: numVal('mm_pending'), mm_closed: numVal('mm_closed'),
+    mina_breaks: numVal('mina_breaks'), mina_inprogress: numVal('mina_inprogress'),
+    mina_pending: numVal('mina_pending'), mina_closed: numVal('mina_closed'),
+    mzd_breaks: numVal('mzd_breaks'), mzd_inprogress: numVal('mzd_inprogress'),
+    mzd_pending: numVal('mzd_pending'), mzd_closed: numVal('mzd_closed'),
     ar_breaks: numVal('ar_breaks'), ar_inprogress: numVal('ar_inprogress'),
     ar_pending: numVal('ar_pending'), ar_closed: numVal('ar_closed'),
   };
@@ -592,7 +621,7 @@ function renderList(){
   }
   cont.innerHTML = dates.map(date=>{
     const r = allReports[date];
-    const totalBreaksOpen = (Number(r.mm_breaks)||0) + (Number(r.ar_breaks)||0);
+    const totalBreaksOpen = (Number(r.mina_breaks)||0) + (Number(r.mzd_breaks)||0) + (Number(r.ar_breaks)||0);
     const anyIsolated = /معزول|مغلق|كسر|متوقف/.test((r.mina_status||'')+(r.mzd_status||'')+(r.arf_status||''));
     let badge = '<span class="badge">مستقر</span>';
     if(anyIsolated) badge = '<span class="badge warn">يوجد عزل/كسر</span>';
@@ -628,12 +657,21 @@ function openDetail(date){
     ${sectionHtml('🔵 مشعر مزدلفة', r.mzd_incoming, r.mzd_outgoing, r.mzd_status)}
     ${sectionHtml('🟠 مشعر عرفة', r.arf_incoming, r.arf_outgoing, r.arf_status)}
     <div class="detail-section">
-      <h4>⚠️ انكسارات منى ومزدلفة</h4>
+      <h4>⚠️ انكسارات منى</h4>
       <div class="stats-row">
-        <div class="stat-pill">الانكسارات<b>${r.mm_breaks??0}</b></div>
-        <div class="stat-pill">جاري العمل<b>${r.mm_inprogress??0}</b></div>
-        <div class="stat-pill">المعلق<b>${r.mm_pending??0}</b></div>
-        <div class="stat-pill">المغلق<b>${r.mm_closed??0}</b></div>
+        <div class="stat-pill">الانكسارات<b>${r.mina_breaks??0}</b></div>
+        <div class="stat-pill">جاري العمل<b>${r.mina_inprogress??0}</b></div>
+        <div class="stat-pill">المعلق<b>${r.mina_pending??0}</b></div>
+        <div class="stat-pill">المغلق<b>${r.mina_closed??0}</b></div>
+      </div>
+    </div>
+    <div class="detail-section">
+      <h4>⚠️ انكسارات مزدلفة</h4>
+      <div class="stats-row">
+        <div class="stat-pill">الانكسارات<b>${r.mzd_breaks??0}</b></div>
+        <div class="stat-pill">جاري العمل<b>${r.mzd_inprogress??0}</b></div>
+        <div class="stat-pill">المعلق<b>${r.mzd_pending??0}</b></div>
+        <div class="stat-pill">المغلق<b>${r.mzd_closed??0}</b></div>
       </div>
     </div>
     <div class="detail-section">
@@ -709,10 +747,14 @@ function loadIntoForm(date){
   parseStatusText('mina', r.mina_status||'');
   parseStatusText('mzd', r.mzd_status||'');
   parseStatusText('arf', r.arf_status||'');
-  document.getElementById('mm_breaks').value = r.mm_breaks??'';
-  document.getElementById('mm_inprogress').value = r.mm_inprogress??'';
-  document.getElementById('mm_pending').value = r.mm_pending??'';
-  document.getElementById('mm_closed').value = r.mm_closed??'';
+  document.getElementById('mina_breaks').value = r.mina_breaks??'';
+  document.getElementById('mina_inprogress').value = r.mina_inprogress??'';
+  document.getElementById('mina_pending').value = r.mina_pending??'';
+  document.getElementById('mina_closed').value = r.mina_closed??'';
+  document.getElementById('mzd_breaks').value = r.mzd_breaks??'';
+  document.getElementById('mzd_inprogress').value = r.mzd_inprogress??'';
+  document.getElementById('mzd_pending').value = r.mzd_pending??'';
+  document.getElementById('mzd_closed').value = r.mzd_closed??'';
   document.getElementById('ar_breaks').value = r.ar_breaks??'';
   document.getElementById('ar_inprogress').value = r.ar_inprogress??'';
   document.getElementById('ar_pending').value = r.ar_pending??'';
