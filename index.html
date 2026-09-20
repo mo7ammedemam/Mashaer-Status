@@ -7,7 +7,7 @@
 <script>
   // ================================================================
   // 👇 الصق هنا رابط الـ Web App بتاع Apps Script بعد نشره (Deploy)
-  const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzGa-Pyd6kRF-JjL20FCvFE4Xke0hZDv-PdSPaIcEwRVCnfOw0-hVq8nghXPG06vHKj/exec";
+  const APPS_SCRIPT_URL = "PASTE_YOUR_APPS_SCRIPT_URL_HERE";
   // مثال: https://script.google.com/macros/s/AKfycb.../exec
 
   // 👇 غيّر الرقم ده لأي PIN تحب تحميه بيه (أرقام أو حروف، أي طول)
@@ -97,7 +97,16 @@
   .chip{background:var(--warn-soft);color:var(--warn);border:1px solid var(--warn);border-radius:999px;padding:5px 10px;font-size:12px;display:flex;align-items:center;gap:6px;}
   .chip b{cursor:pointer;font-size:13px;}
   .default-note{font-size:12px;color:var(--text-dim);margin-top:8px;}
+  .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px;}
+  @media (max-width:640px){.kpi-grid{grid-template-columns:repeat(2,1fr);}}
+  .kpi-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px;box-shadow:var(--shadow);text-align:center;}
+  .kpi-card .kpi-label{font-size:12px;color:var(--text-dim);margin-bottom:6px;}
+  .kpi-card .kpi-value{font-size:22px;font-weight:700;color:var(--accent-dark);}
+  .kpi-card .kpi-sub{font-size:11px;color:var(--text-dim);margin-top:4px;}
+  .chart-wrap{position:relative;height:280px;}
+  .chart-wrap-sm{height:220px;}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 </head>
 <body>
 
@@ -125,6 +134,7 @@
   <div class="tabs">
     <button class="tab-btn active" data-tab="view">📊 عرض الحالة</button>
     <button class="tab-btn" data-tab="entry">📝 تسجيل يومي</button>
+    <button class="tab-btn" data-tab="dashboard">📈 لوحة التحليل</button>
   </div>
 
   <div class="view active" id="view-tab">
@@ -305,6 +315,44 @@
     <button class="btn" id="saveBtn" onclick="saveEntry()">💾 حفظ / تحديث بيانات اليوم</button>
     <p class="small-note" style="text-align:center;">سيتم حفظ البيانات في جدول جوجل شيت الخاص بكم.</p>
   </div>
+
+  <div class="view" id="dashboard-tab">
+    <div class="card" id="dashEmptyState" style="display:none;">
+      <div class="empty-state"><div>📊</div>لا توجد بيانات كافية لعرض التحليل بعد.</div>
+    </div>
+
+    <div id="dashContent">
+      <div class="kpi-grid" id="kpiGrid"></div>
+
+      <div class="card">
+        <h2>📈 إجمالي الانكسارات عبر الوقت (منى · مزدلفة · عرفة)</h2>
+        <p class="small-note" style="margin-top:-6px;">الأرقام دي إجمالي تراكمي مسجَّل في كل يوم، مش عدد انكسارات اليوم نفسه.</p>
+        <div class="chart-wrap"><canvas id="chartTrend"></canvas></div>
+      </div>
+
+      <div class="card">
+        <h2>➕➖ صافي التغيير اليومي في إجمالي الانكسارات</h2>
+        <p class="small-note" style="margin-top:-6px;">الفرق بين إجمالي اليوم وإجمالي اليوم اللي قبله — رقم موجب يعني انكسارات جديدة اتضافت، سالب يعني اتقفلت أكتر مما اتفتح.</p>
+        <div class="chart-wrap"><canvas id="chartDelta"></canvas></div>
+      </div>
+
+      <div class="card">
+        <h2>📊 آخر لقطة لحالة الانكسارات لكل مشعر</h2>
+        <div class="chart-wrap"><canvas id="chartLatestBreakdown"></canvas></div>
+      </div>
+
+      <div class="card">
+        <h2>⚠️ عدد الأيام اللي فيها عزل مسجَّل لكل مشعر</h2>
+        <div class="chart-wrap chart-wrap-sm"><canvas id="chartIsolationDays"></canvas></div>
+      </div>
+
+      <div class="card">
+        <h2>📍 أكتر المناطق تكرارًا في العزل (كل الفترة)</h2>
+        <div class="chart-wrap" id="topZonesChartWrap"><canvas id="chartTopZones"></canvas></div>
+        <p class="small-note" id="noZonesMsg" style="display:none;text-align:center;padding:20px 0 0;">مفيش أي منطقة اتسجلت كمعزولة لحد دلوقتي.</p>
+      </div>
+    </div>
+  </div>
 </div>
 
 <div id="detailModal"><div class="sheet" id="detailSheet"></div></div>
@@ -347,69 +395,69 @@ const weekdayNamesAr = ["الأحد","الإثنين","الثلاثاء","الأ
 // 👇 هنا تقدر تضيف / تشيل / تعدل العناصر الثابتة (data validation)
 const OPTIONS = {
   mina_in: [
-  'البيعة العلوي',
-  'وسط منى',
-  'منى الرئيسي',
-  'المرحلة الثالثة',
-  'القصور',
-  'ربوة الخيف الخرساني',
-  'الشعيب الغربي',
-  'متيتو 206',
-  'متيتو 207',
-  'متيتو 208',
-  'الشعيب الشرقي',
-  'ملكان',
-  'ربوة الخيف الحديدي',
-  'البيعة السفلي',
-  'حريق منى',
-  'تبريد منى',
-  'المعيصم'
+  'Baiya Upper',
+  'King Fahd',
+  'Mina Main',
+  'Mina 3RD Phase',
+  'QUSOR',
+  'R. Alkhief K.',
+  'Al Shaebayn 10',
+  'Al Shaebayn 206',
+  'Al Shaebayn 207',
+  'Al Shaebayn 208',
+  'Al Shaebayn 20',
+  'Malkan',
+  'R. Alkhief Steel',
+  'Baiya Lower',
+  'Mina Fire',
+  'Mina Cooling',
+  'Moisam'
 ],
 
   mina_out: [
-  'البيعة العلوي',
-  'وسط منى',
-  'منى الرئيسي',
-  'المرحلة الثالثة',
-  'القصور',
-  'ربوة الخيف الخرساني',
-  'الشعيب الغربي',
-  'متيتو 206',
-  'متيتو 207',
-  'متيتو 208',
-  'الشعيب الشرقي',
-  'ملكان',
-  'ربوة الخيف الحديدي',
-  'البيعة السفلي',
-  'حريق منى',
-  'تبريد منى',
-  'المعيصم'
+  'Baiya Upper',
+  'King Fahd',
+  'Mina Main',
+  'Mina 3RD Phase',
+  'QUSOR',
+  'R. Alkhief K.',
+  'Al Shaebayn 10',
+  'Al Shaebayn 206',
+  'Al Shaebayn 207',
+  'Al Shaebayn 208',
+  'Al Shaebayn 20',
+  'Malkan',
+  'R. Alkhief Steel',
+  'Baiya Lower',
+  'Mina Fire',
+  'Mina Cooling',
+  'Moisam'
 ],
 
   mzd_in: [
-  'مزدلفة الرئيسي',
-  'حريق مزدلفة',
-  'مزدلفة الترددية'
+  'Mozdalifa Main',
+  'Mozdalifa Fire',
+  'Tradodiya'
 ],
 
   mzd_out:[
-   'مزدلفة الرئيسي',
-  'حريق مزدلفة',
-  'مزدلفة الترددية'
+  'Mozdalifa Main',
+  'Mozdalifa Fire',
+  'Tradodiya'
 ],
 
   arf_in: [
-  'عرفات الخرساني',
-  'حريق عرفات',
-  'عرفات الحديدي',
-  'عرفات القديم'
+  'ARAFAT CONCRET',
+  'ARAFAT FIRE',
+  'ARAFAT Steel',
+  'ARAFAT OLD'
 ],
 
   arf_out: [
-  'عرفات الخرساني',
-  'حريق عرفات',
-  'عرفات الحديدي',
-  'عرفات القديم'
+  'ARAFAT CONCRET',
+  'ARAFAT FIRE',
+  'ARAFAT Steel',
+  'ARAFAT OLD'
 ],
 
 };
@@ -521,6 +569,7 @@ document.querySelectorAll('.tab-btn').forEach(btn=>{
     document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
     btn.classList.add('active');
     document.getElementById(btn.dataset.tab+'-tab').classList.add('active');
+    if(btn.dataset.tab === 'dashboard') renderDashboard();
   });
 });
 
@@ -612,7 +661,144 @@ function mapPayloadToReport(p){ return p; }
 function val(id){ return (document.getElementById(id).value||'').trim(); }
 function numVal(id){ const v = document.getElementById(id).value; return v===''? 0 : parseInt(v,10); }
 
+let chartTrend=null, chartDelta=null, chartLatestBreakdown=null, chartIsolationDays=null, chartTopZones=null;
+
+function renderDashboard(){
+  if (typeof Chart === 'undefined') return; // مكتبة الرسم لسه مبتحملتش
+  const dates = Object.keys(allReports).sort(); // تصاعديًا حسب التاريخ
+  const dashEmpty = document.getElementById('dashEmptyState');
+  const dashContent = document.getElementById('dashContent');
+
+  if(dates.length === 0){
+    dashEmpty.style.display = 'block';
+    dashContent.style.display = 'none';
+    return;
+  }
+  dashEmpty.style.display = 'none';
+  dashContent.style.display = 'block';
+
+  const latestDate = dates[dates.length-1];
+  const latest = allReports[latestDate];
+
+  const minaBreaksArr = dates.map(d=>Number(allReports[d].mina_breaks)||0);
+  const mzdBreaksArr  = dates.map(d=>Number(allReports[d].mzd_breaks)||0);
+  const arBreaksArr   = dates.map(d=>Number(allReports[d].ar_breaks)||0);
+  const combinedArr   = dates.map((d,i)=> minaBreaksArr[i]+mzdBreaksArr[i]+arBreaksArr[i]);
+
+  const isolatedDaysCount = {mina:0, mzd:0, arf:0};
+  let stableDaysCount = 0;
+  dates.forEach(d=>{
+    const r = allReports[d];
+    const minaIsolated = /معزول/.test(r.mina_status||'');
+    const mzdIsolated  = /معزول/.test(r.mzd_status||'');
+    const arfIsolated  = /معزول/.test(r.arf_status||'');
+    if(minaIsolated) isolatedDaysCount.mina++;
+    if(mzdIsolated)  isolatedDaysCount.mzd++;
+    if(arfIsolated)  isolatedDaysCount.arf++;
+    if(!minaIsolated && !mzdIsolated && !arfIsolated) stableDaysCount++;
+  });
+  const stablePct = Math.round((stableDaysCount/dates.length)*100);
+  const latestOpenTotal = minaBreaksArr[minaBreaksArr.length-1] + mzdBreaksArr[mzdBreaksArr.length-1] + arBreaksArr[arBreaksArr.length-1];
+
+  // ---------- بطاقات المؤشرات ----------
+  document.getElementById('kpiGrid').innerHTML = `
+    <div class="kpi-card"><div class="kpi-label">عدد الأيام المسجلة</div><div class="kpi-value">${dates.length}</div></div>
+    <div class="kpi-card"><div class="kpi-label">آخر يوم مسجل</div><div class="kpi-value" style="font-size:16px;">${latestDate}</div><div class="kpi-sub">${escapeHtml(latest.weekday||'')}</div></div>
+    <div class="kpi-card"><div class="kpi-label">إجمالي الانكسارات المفتوحة حاليًا</div><div class="kpi-value">${latestOpenTotal}</div></div>
+    <div class="kpi-card"><div class="kpi-label">نسبة الأيام المستقرة</div><div class="kpi-value">${stablePct}%</div><div class="kpi-sub">${stableDaysCount} من ${dates.length} يوم</div></div>
+  `;
+
+  const commonOpts = { responsive:true, maintainAspectRatio:false };
+
+  // ---------- شارت الاتجاه (تراكمي) ----------
+  if(chartTrend) chartTrend.destroy();
+  chartTrend = new Chart(document.getElementById('chartTrend'), {
+    type:'line',
+    data:{ labels: dates, datasets:[
+      {label:'منى', data:minaBreaksArr, borderColor:'#0f7a4f', backgroundColor:'rgba(15,122,79,.12)', tension:.3, fill:true},
+      {label:'مزدلفة', data:mzdBreaksArr, borderColor:'#2563eb', backgroundColor:'rgba(37,99,235,.12)', tension:.3, fill:true},
+      {label:'عرفة', data:arBreaksArr, borderColor:'#d97706', backgroundColor:'rgba(217,119,6,.12)', tension:.3, fill:true},
+    ]},
+    options:{ ...commonOpts, plugins:{legend:{position:'bottom'}}, scales:{ y:{ beginAtZero:true, ticks:{precision:0} } } }
+  });
+
+  // ---------- شارت صافي التغيير اليومي ----------
+  const deltaLabels = dates.slice(1);
+  const deltaValues = deltaLabels.map((d,i)=> combinedArr[i+1] - combinedArr[i]);
+  if(chartDelta) chartDelta.destroy();
+  chartDelta = new Chart(document.getElementById('chartDelta'), {
+    type:'bar',
+    data:{ labels: deltaLabels, datasets:[{
+      label:'صافي التغيير', data: deltaValues,
+      backgroundColor: deltaValues.map(v=> v>0 ? '#b91c1c' : (v<0 ? '#0f7a4f' : '#9ca3af'))
+    }]},
+    options:{ ...commonOpts, plugins:{legend:{display:false}}, scales:{ y:{ ticks:{precision:0} } } }
+  });
+
+  // ---------- شارت آخر لقطة لكل مشعر ----------
+  if(chartLatestBreakdown) chartLatestBreakdown.destroy();
+  chartLatestBreakdown = new Chart(document.getElementById('chartLatestBreakdown'), {
+    type:'bar',
+    data:{
+      labels:['الانكسارات','جاري العمل','المعلق','المغلق'],
+      datasets:[
+        {label:'منى', backgroundColor:'#0f7a4f', data:[latest.mina_breaks,latest.mina_inprogress,latest.mina_pending,latest.mina_closed].map(v=>Number(v)||0)},
+        {label:'مزدلفة', backgroundColor:'#2563eb', data:[latest.mzd_breaks,latest.mzd_inprogress,latest.mzd_pending,latest.mzd_closed].map(v=>Number(v)||0)},
+        {label:'عرفة', backgroundColor:'#d97706', data:[latest.ar_breaks,latest.ar_inprogress,latest.ar_pending,latest.ar_closed].map(v=>Number(v)||0)},
+      ]
+    },
+    options:{ ...commonOpts, plugins:{legend:{position:'bottom'}}, scales:{ y:{ beginAtZero:true, ticks:{precision:0} } } }
+  });
+
+  // ---------- شارت أيام العزل لكل مشعر ----------
+  if(chartIsolationDays) chartIsolationDays.destroy();
+  chartIsolationDays = new Chart(document.getElementById('chartIsolationDays'), {
+    type:'bar',
+    data:{ labels:['منى','مزدلفة','عرفة'], datasets:[{
+      label:'أيام بها عزل', data:[isolatedDaysCount.mina, isolatedDaysCount.mzd, isolatedDaysCount.arf],
+      backgroundColor:['#0f7a4f','#2563eb','#d97706']
+    }]},
+    options:{ indexAxis:'y', ...commonOpts, plugins:{legend:{display:false}}, scales:{ x:{ beginAtZero:true, ticks:{precision:0} } } }
+  });
+
+  // ---------- شارت أكتر المناطق تكرارًا في العزل ----------
+  const zoneCounts = {};
+  dates.forEach(d=>{
+    const r = allReports[d];
+    ['mina_status','mzd_status','arf_status'].forEach(key=>{
+      const text = r[key]||'';
+      const m = text.match(/ماعدا:\s*(.*)$/);
+      if(m){
+        m[1].split(/[،,]/).map(s=>s.trim()).filter(Boolean).forEach(p=>{
+          const mm = p.match(/^(.*?)\s*\(/);
+          if(mm){
+            const zone = mm[1].trim();
+            zoneCounts[zone] = (zoneCounts[zone]||0) + 1;
+          }
+        });
+      }
+    });
+  });
+  const sortedZones = Object.entries(zoneCounts).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  const wrapEl = document.getElementById('topZonesChartWrap');
+  const noZonesEl = document.getElementById('noZonesMsg');
+  if(sortedZones.length === 0){
+    wrapEl.style.display = 'none';
+    noZonesEl.style.display = 'block';
+  } else {
+    wrapEl.style.display = 'block';
+    noZonesEl.style.display = 'none';
+    if(chartTopZones) chartTopZones.destroy();
+    chartTopZones = new Chart(document.getElementById('chartTopZones'), {
+      type:'bar',
+      data:{ labels: sortedZones.map(z=>z[0]), datasets:[{label:'عدد مرات العزل', data: sortedZones.map(z=>z[1]), backgroundColor:'#b91c1c'}] },
+      options:{ indexAxis:'y', ...commonOpts, plugins:{legend:{display:false}}, scales:{ x:{ beginAtZero:true, ticks:{precision:0} } } }
+    });
+  }
+}
+
 function renderList(){
+  renderDashboard();
   const cont = document.getElementById('daysList');
   const dates = Object.keys(allReports).sort().reverse();
   if(dates.length===0){
