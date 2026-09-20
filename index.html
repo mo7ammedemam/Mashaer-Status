@@ -104,6 +104,21 @@
   .kpi-card .kpi-value{font-size:22px;font-weight:700;color:var(--accent-dark);}
   .kpi-card .kpi-sub{font-size:11px;color:var(--text-dim);margin-top:4px;}
   .chart-wrap{position:relative;height:280px;}
+  .mesh-select-btn{
+    display:block;width:100%;text-align:right;padding:18px 20px;margin-bottom:12px;
+    border-radius:14px;border:1px solid var(--border);background:var(--card);color:var(--text);
+    font-size:16px;font-weight:700;cursor:pointer;box-shadow:var(--shadow);font-family:inherit;
+  }
+  .mesh-select-btn.mina-c{border-right:5px solid #0f7a4f;}
+  .mesh-select-btn.mzd-c{border-right:5px solid #2563eb;}
+  .mesh-select-btn.arf-c{border-right:5px solid #d97706;}
+  .mesh-card{display:none;}
+  .mesh-card.active{display:block;}
+  .mesh-rows{margin-top:10px;display:flex;flex-direction:column;gap:8px;}
+  .mesh-row{display:flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:8px 10px;}
+  .mesh-row-label{flex:1;font-size:13px;font-weight:700;}
+  .mesh-row .badge{white-space:nowrap;}
+  .mesh-row button{width:auto;margin:0;padding:6px 10px;font-size:12px;}
   .chart-wrap-sm{height:220px;}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
@@ -149,171 +164,183 @@
   </div>
 
   <div class="view" id="entry-tab">
-    <div class="card">
-      <h2>📅 بيانات اليوم</h2>
-      <div class="grid2">
-        <div><label>التاريخ</label><input type="date" id="f_date"></div>
-        <div><label>اليوم</label><input type="text" id="f_weekday" placeholder="مثال: الثلاثاء"></div>
+    <div id="entryMeshSelect">
+      <div class="card">
+        <h2>📝 اختر المشعر اللي هتسجّل بياناته</h2>
+        <p class="small-note" style="margin-top:0;">كل مشعر له صفحة تسجيل منفصلة، عشان كل شخص يسجّل بيانات المشعر بتاعه بس.</p>
       </div>
-      <label>اسم المُدخِل (اختياري)</label>
-      <input type="text" id="f_author" placeholder="اسمك">
+      <button type="button" class="mesh-select-btn mina-c" onclick="openMeshEntry('mina')">🟢 تسجيل بيانات منى</button>
+      <button type="button" class="mesh-select-btn mzd-c" onclick="openMeshEntry('mzd')">🔵 تسجيل بيانات مزدلفة</button>
+      <button type="button" class="mesh-select-btn arf-c" onclick="openMeshEntry('arf')">🟠 تسجيل بيانات عرفة</button>
     </div>
 
-    <div class="card">
-      <h2>🟢 أولاً: مشعر منى</h2>
-      <div class="section-block">
-        <label>الوارد</label>
-        <div class="zone-builder">
-          <div class="zone-row">
-            <select id="mina_in_select"></select>
-            <button type="button" class="btn secondary" style="width:auto;margin:0;padding:9px 14px;" onclick="addListItem('mina_in')">+ إضافة</button>
-          </div>
-          <div class="chips" id="mina_in_chips"></div>
-        </div>
-        <textarea id="mina_in" style="display:none;"></textarea>
+    <div id="entryMeshForm" style="display:none;">
+      <button type="button" class="btn secondary" onclick="closeMeshEntry()">→ رجوع لاختيار المشعر</button>
 
-        <label>المنصرف</label>
-        <div class="zone-builder">
-          <div class="zone-row">
-            <select id="mina_out_select"></select>
-            <button type="button" class="btn secondary" style="width:auto;margin:0;padding:9px 14px;" onclick="addListItem('mina_out')">+ إضافة</button>
-          </div>
-          <div class="chips" id="mina_out_chips"></div>
+      <div class="card">
+        <h2 id="meshFormTitle">📅 بيانات اليوم</h2>
+        <div class="grid2">
+          <div><label>التاريخ</label><input type="date" id="f_date"></div>
+          <div><label>اليوم</label><input type="text" id="f_weekday" placeholder="مثال: الثلاثاء"></div>
         </div>
-        <textarea id="mina_out" style="display:none;"></textarea>
-
-        <label>حالة التشغيل في المناطق</label>
-        <div class="zone-builder">
-          <div class="zone-row">
-            <select id="mina_zone_select"></select>
-            <select id="mina_zone_status_select">
-              <option value="معزولة بالكامل">معزولة بالكامل</option>
-              <option value="معزولة جزئياً">معزولة جزئياً</option>
-            </select>
-            <input type="text" id="mina_zone_reason_input" placeholder="سبب العزل (اختياري)" style="flex:2;min-width:140px;">
-            <button type="button" class="btn secondary" style="width:auto;margin:0;padding:9px 14px;" onclick="addException('mina')">+ إضافة</button>
-          </div>
-          <div class="chips" id="mina_exceptions_chips"></div>
-          <div class="default-note">لو مفيش استثناءات مضافة، هيتسجل تلقائيًا "جميع المناطق مخدومة".</div>
-        </div>
-        <textarea id="mina_status" style="display:none;"></textarea>
       </div>
-    </div>
 
-    <div class="card">
-      <h2>🔵 ثانياً: مشعر مزدلفة</h2>
-      <div class="section-block">
-        <label>الوارد</label>
-        <div class="zone-builder">
-          <div class="zone-row">
-            <select id="mzd_in_select"></select>
-            <button type="button" class="btn secondary" style="width:auto;margin:0;padding:9px 14px;" onclick="addListItem('mzd_in')">+ إضافة</button>
+      <div class="card mesh-card" data-mesh="mina">
+        <h2>🟢 مشعر منى</h2>
+        <label>اسم المُدخِل (اختياري)</label>
+        <input type="text" id="mina_author" placeholder="اسمك">
+        <div class="section-block">
+          <label>الوارد</label>
+          <div class="zone-builder">
+            <div class="zone-row">
+              <select id="mina_in_select"></select>
+              <button type="button" class="btn secondary" style="width:auto;margin:0;padding:9px 14px;" onclick="addListItem('mina_in')">+ إضافة</button>
+            </div>
+            <div class="chips" id="mina_in_chips"></div>
           </div>
-          <div class="chips" id="mzd_in_chips"></div>
-        </div>
-        <textarea id="mzd_in" style="display:none;"></textarea>
+          <textarea id="mina_in" style="display:none;"></textarea>
 
-        <label>المنصرف</label>
-        <div class="zone-builder">
-          <div class="zone-row">
-            <select id="mzd_out_select"></select>
-            <button type="button" class="btn secondary" style="width:auto;margin:0;padding:9px 14px;" onclick="addListItem('mzd_out')">+ إضافة</button>
+          <label>المنصرف</label>
+          <div class="zone-builder">
+            <div class="zone-row">
+              <select id="mina_out_select"></select>
+              <button type="button" class="btn secondary" style="width:auto;margin:0;padding:9px 14px;" onclick="addListItem('mina_out')">+ إضافة</button>
+            </div>
+            <div class="chips" id="mina_out_chips"></div>
           </div>
-          <div class="chips" id="mzd_out_chips"></div>
-        </div>
-        <textarea id="mzd_out" style="display:none;"></textarea>
+          <textarea id="mina_out" style="display:none;"></textarea>
 
-        <label>حالة التشغيل في المناطق</label>
-        <div class="zone-builder">
-          <div class="zone-row">
-            <select id="mzd_zone_select"></select>
-            <select id="mzd_zone_status_select">
-              <option value="معزولة بالكامل">معزولة بالكامل</option>
-              <option value="معزولة جزئياً">معزولة جزئياً</option>
-            </select>
-            <input type="text" id="mzd_zone_reason_input" placeholder="سبب العزل (اختياري)" style="flex:2;min-width:140px;">
-            <button type="button" class="btn secondary" style="width:auto;margin:0;padding:9px 14px;" onclick="addException('mzd')">+ إضافة</button>
+          <label>حالة التشغيل في المناطق</label>
+          <div class="zone-builder">
+            <div class="zone-row">
+              <select id="mina_zone_select"></select>
+              <select id="mina_zone_status_select">
+                <option value="معزولة بالكامل">معزولة بالكامل</option>
+                <option value="معزولة جزئياً">معزولة جزئياً</option>
+              </select>
+              <input type="text" id="mina_zone_reason_input" placeholder="سبب العزل (اختياري)" style="flex:2;min-width:140px;">
+              <button type="button" class="btn secondary" style="width:auto;margin:0;padding:9px 14px;" onclick="addException('mina')">+ إضافة</button>
+            </div>
+            <div class="chips" id="mina_exceptions_chips"></div>
+            <div class="default-note">لو مفيش استثناءات مضافة، هيتسجل تلقائيًا "جميع المناطق مخدومة".</div>
           </div>
-          <div class="chips" id="mzd_exceptions_chips"></div>
-          <div class="default-note"></div>
+          <textarea id="mina_status" style="display:none;"></textarea>
         </div>
-        <textarea id="mzd_status" style="display:none;"></textarea>
+
+        <h2 style="margin-top:16px;">⚠️ انكسارات منى</h2>
+        <div class="grid4">
+          <div><label>عدد الانكسارات</label><input type="number" id="mina_breaks" min="0"></div>
+          <div><label>جاري العمل</label><input type="number" id="mina_inprogress" min="0"></div>
+          <div><label>المعلق</label><input type="number" id="mina_pending" min="0"></div>
+          <div><label>المغلق</label><input type="number" id="mina_closed" min="0"></div>
+        </div>
       </div>
-    </div>
 
-    <div class="card">
-      <h2>🟠 ثالثاً: مشعر عرفة</h2>
-      <div class="section-block">
-        <label>الوارد</label>
-        <div class="zone-builder">
-          <div class="zone-row">
-            <select id="arf_in_select"></select>
-            <button type="button" class="btn secondary" style="width:auto;margin:0;padding:9px 14px;" onclick="addListItem('arf_in')">+ إضافة</button>
+      <div class="card mesh-card" data-mesh="mzd">
+        <h2>🔵 مشعر مزدلفة</h2>
+        <label>اسم المُدخِل (اختياري)</label>
+        <input type="text" id="mzd_author" placeholder="اسمك">
+        <div class="section-block">
+          <label>الوارد</label>
+          <div class="zone-builder">
+            <div class="zone-row">
+              <select id="mzd_in_select"></select>
+              <button type="button" class="btn secondary" style="width:auto;margin:0;padding:9px 14px;" onclick="addListItem('mzd_in')">+ إضافة</button>
+            </div>
+            <div class="chips" id="mzd_in_chips"></div>
           </div>
-          <div class="chips" id="arf_in_chips"></div>
-        </div>
-        <textarea id="arf_in" style="display:none;"></textarea>
+          <textarea id="mzd_in" style="display:none;"></textarea>
 
-        <label>المنصرف</label>
-        <div class="zone-builder">
-          <div class="zone-row">
-            <select id="arf_out_select"></select>
-            <button type="button" class="btn secondary" style="width:auto;margin:0;padding:9px 14px;" onclick="addListItem('arf_out')">+ إضافة</button>
+          <label>المنصرف</label>
+          <div class="zone-builder">
+            <div class="zone-row">
+              <select id="mzd_out_select"></select>
+              <button type="button" class="btn secondary" style="width:auto;margin:0;padding:9px 14px;" onclick="addListItem('mzd_out')">+ إضافة</button>
+            </div>
+            <div class="chips" id="mzd_out_chips"></div>
           </div>
-          <div class="chips" id="arf_out_chips"></div>
-        </div>
-        <textarea id="arf_out" style="display:none;"></textarea>
+          <textarea id="mzd_out" style="display:none;"></textarea>
 
-        <label>حالة التشغيل في المناطق</label>
-        <div class="zone-builder">
-          <div class="zone-row">
-            <select id="arf_zone_select"></select>
-            <select id="arf_zone_status_select">
-              <option value="معزولة بالكامل">معزولة بالكامل</option>
-              <option value="معزولة جزئياً">معزولة جزئياً</option>
-            </select>
-            <input type="text" id="arf_zone_reason_input" placeholder="سبب العزل (اختياري)" style="flex:2;min-width:140px;">
-            <button type="button" class="btn secondary" style="width:auto;margin:0;padding:9px 14px;" onclick="addException('arf')">+ إضافة</button>
+          <label>حالة التشغيل في المناطق</label>
+          <div class="zone-builder">
+            <div class="zone-row">
+              <select id="mzd_zone_select"></select>
+              <select id="mzd_zone_status_select">
+                <option value="معزولة بالكامل">معزولة بالكامل</option>
+                <option value="معزولة جزئياً">معزولة جزئياً</option>
+              </select>
+              <input type="text" id="mzd_zone_reason_input" placeholder="سبب العزل (اختياري)" style="flex:2;min-width:140px;">
+              <button type="button" class="btn secondary" style="width:auto;margin:0;padding:9px 14px;" onclick="addException('mzd')">+ إضافة</button>
+            </div>
+            <div class="chips" id="mzd_exceptions_chips"></div>
+            <div class="default-note"></div>
           </div>
-          <div class="chips" id="arf_exceptions_chips"></div>
-          <div class="default-note"></div>
+          <textarea id="mzd_status" style="display:none;"></textarea>
         </div>
-        <textarea id="arf_status" style="display:none;"></textarea>
-      </div>
-    </div>
 
-    <div class="card">
-      <h2>⚠️ انكسارات منى</h2>
-      <div class="grid4">
-        <div><label>عدد الانكسارات</label><input type="number" id="mina_breaks" min="0"></div>
-        <div><label>جاري العمل</label><input type="number" id="mina_inprogress" min="0"></div>
-        <div><label>المعلق</label><input type="number" id="mina_pending" min="0"></div>
-        <div><label>المغلق</label><input type="number" id="mina_closed" min="0"></div>
+        <h2 style="margin-top:16px;">⚠️ انكسارات مزدلفة</h2>
+        <div class="grid4">
+          <div><label>عدد الانكسارات</label><input type="number" id="mzd_breaks" min="0"></div>
+          <div><label>جاري العمل</label><input type="number" id="mzd_inprogress" min="0"></div>
+          <div><label>المعلق</label><input type="number" id="mzd_pending" min="0"></div>
+          <div><label>المغلق</label><input type="number" id="mzd_closed" min="0"></div>
+        </div>
       </div>
-    </div>
 
-    <div class="card">
-      <h2>⚠️ انكسارات مزدلفة</h2>
-      <div class="grid4">
-        <div><label>عدد الانكسارات</label><input type="number" id="mzd_breaks" min="0"></div>
-        <div><label>جاري العمل</label><input type="number" id="mzd_inprogress" min="0"></div>
-        <div><label>المعلق</label><input type="number" id="mzd_pending" min="0"></div>
-        <div><label>المغلق</label><input type="number" id="mzd_closed" min="0"></div>
+      <div class="card mesh-card" data-mesh="arf">
+        <h2>🟠 مشعر عرفة</h2>
+        <label>اسم المُدخِل (اختياري)</label>
+        <input type="text" id="arf_author" placeholder="اسمك">
+        <div class="section-block">
+          <label>الوارد</label>
+          <div class="zone-builder">
+            <div class="zone-row">
+              <select id="arf_in_select"></select>
+              <button type="button" class="btn secondary" style="width:auto;margin:0;padding:9px 14px;" onclick="addListItem('arf_in')">+ إضافة</button>
+            </div>
+            <div class="chips" id="arf_in_chips"></div>
+          </div>
+          <textarea id="arf_in" style="display:none;"></textarea>
+
+          <label>المنصرف</label>
+          <div class="zone-builder">
+            <div class="zone-row">
+              <select id="arf_out_select"></select>
+              <button type="button" class="btn secondary" style="width:auto;margin:0;padding:9px 14px;" onclick="addListItem('arf_out')">+ إضافة</button>
+            </div>
+            <div class="chips" id="arf_out_chips"></div>
+          </div>
+          <textarea id="arf_out" style="display:none;"></textarea>
+
+          <label>حالة التشغيل في المناطق</label>
+          <div class="zone-builder">
+            <div class="zone-row">
+              <select id="arf_zone_select"></select>
+              <select id="arf_zone_status_select">
+                <option value="معزولة بالكامل">معزولة بالكامل</option>
+                <option value="معزولة جزئياً">معزولة جزئياً</option>
+              </select>
+              <input type="text" id="arf_zone_reason_input" placeholder="سبب العزل (اختياري)" style="flex:2;min-width:140px;">
+              <button type="button" class="btn secondary" style="width:auto;margin:0;padding:9px 14px;" onclick="addException('arf')">+ إضافة</button>
+            </div>
+            <div class="chips" id="arf_exceptions_chips"></div>
+            <div class="default-note"></div>
+          </div>
+          <textarea id="arf_status" style="display:none;"></textarea>
+        </div>
+
+        <h2 style="margin-top:16px;">⚠️ انكسارات عرفة</h2>
+        <div class="grid4">
+          <div><label>عدد الانكسارات</label><input type="number" id="ar_breaks" min="0"></div>
+          <div><label>جاري العمل</label><input type="number" id="ar_inprogress" min="0"></div>
+          <div><label>المعلق</label><input type="number" id="ar_pending" min="0"></div>
+          <div><label>المغلق</label><input type="number" id="ar_closed" min="0"></div>
+        </div>
       </div>
-    </div>
 
-    <div class="card">
-      <h2>⚠️ انكسارات عرفة</h2>
-      <div class="grid4">
-        <div><label>عدد الانكسارات</label><input type="number" id="ar_breaks" min="0"></div>
-        <div><label>جاري العمل</label><input type="number" id="ar_inprogress" min="0"></div>
-        <div><label>المعلق</label><input type="number" id="ar_pending" min="0"></div>
-        <div><label>المغلق</label><input type="number" id="ar_closed" min="0"></div>
-      </div>
+      <button class="btn" id="saveBtn" onclick="saveMeshEntry()">💾 حفظ بيانات هذا المشعر</button>
+      <p class="small-note" style="text-align:center;">هيتم حفظ بيانات هذا المشعر بس، من غير ما يأثر على بيانات المشاعر التانية لنفس اليوم.</p>
     </div>
-
-    <button class="btn" id="saveBtn" onclick="saveEntry()">💾 حفظ / تحديث بيانات اليوم</button>
-    <p class="small-note" style="text-align:center;">سيتم حفظ البيانات في جدول جوجل شيت الخاص بكم.</p>
   </div>
 
   <div class="view" id="dashboard-tab">
@@ -326,13 +353,13 @@
 
       <div class="card">
         <h2>📈 إجمالي الانكسارات عبر الوقت (منى · مزدلفة · عرفة)</h2>
-        <p class="small-note" style="margin-top:-6px;">الإجمالي التراكمي.</p>
+        <p class="small-note" style="margin-top:-6px;">الأرقام دي إجمالي تراكمي مسجَّل في كل يوم، مش عدد انكسارات اليوم نفسه.</p>
         <div class="chart-wrap"><canvas id="chartTrend"></canvas></div>
       </div>
 
       <div class="card">
         <h2>➕➖ صافي التغيير اليومي في إجمالي الانكسارات</h2>
-        <p class="small-note" style="margin-top:-6px;">الفرق بين إجمالي اليوم وإجمالي اليوم اللي قبله — رقم موجب: انكسارات جديدة اتضافت، سالب: يعني اتقفلت أكتر مما اتفتح.</p>
+        <p class="small-note" style="margin-top:-6px;">الفرق بين إجمالي اليوم وإجمالي اليوم اللي قبله — رقم موجب يعني انكسارات جديدة اتضافت، سالب يعني اتقفلت أكتر مما اتفتح.</p>
         <div class="chart-wrap"><canvas id="chartDelta"></canvas></div>
       </div>
 
@@ -467,7 +494,6 @@ mina: ['منى 1','منى 2','منى 3','منى 4','منى 5','منى 6','منى
 mzd: ['مزدلفة 1','مزدلفة 2','مزدلفة 3','مزدلفة 4','مزدلفة 5'],
 arf: ['عرفات 1','عرفات 2','عرفات 3','عرفات 4','عرفات 5','عرفات 6','عرفات 7','عرفات 8'],
 };
-
 // ================================================================
 
 const exceptionsState = { mina: [], mzd: [], arf: [] };
@@ -618,46 +644,80 @@ async function loadReports(){
   }
 }
 
+let currentMesh = null;
+
+function openMeshEntry(mesh){
+  currentMesh = mesh;
+  document.getElementById('entryMeshSelect').style.display = 'none';
+  document.getElementById('entryMeshForm').style.display = 'block';
+  document.querySelectorAll('.mesh-card').forEach(c=>{
+    c.classList.toggle('active', c.dataset.mesh === mesh);
+  });
+  const titles = { mina:'📅 بيانات اليوم — تسجيل منى', mzd:'📅 بيانات اليوم — تسجيل مزدلفة', arf:'📅 بيانات اليوم — تسجيل عرفة' };
+  document.getElementById('meshFormTitle').textContent = titles[mesh] || '📅 بيانات اليوم';
+  if(!dateInput.value) dateInput.value = todayStr();
+  autoWeekday();
+}
+function closeMeshEntry(){
+  currentMesh = null;
+  document.getElementById('entryMeshSelect').style.display = 'block';
+  document.getElementById('entryMeshForm').style.display = 'none';
+}
+
 function refreshList(){ loadReports(); showToast('جاري التحديث...'); }
 
-async function saveEntry(){
+async function saveMeshEntry(){
   if(!isConfigured()){ showToast('⚠️ اضبط رابط قاعدة البيانات أولاً'); return; }
+  const mesh = currentMesh;
+  if(!mesh) return;
   const date = dateInput.value;
   if(!date){ showToast('يرجى اختيار التاريخ'); return; }
 
   const payload = {
     date,
     weekday: val('f_weekday'),
-    author: val('f_author'),
     updatedAt: new Date().toISOString(),
-    mina_incoming: val('mina_in'), mina_outgoing: val('mina_out'), mina_status: val('mina_status'),
-    mzd_incoming: val('mzd_in'), mzd_outgoing: val('mzd_out'), mzd_status: val('mzd_status'),
-    arf_incoming: val('arf_in'), arf_outgoing: val('arf_out'), arf_status: val('arf_status'),
-    mina_breaks: numVal('mina_breaks'), mina_inprogress: numVal('mina_inprogress'),
-    mina_pending: numVal('mina_pending'), mina_closed: numVal('mina_closed'),
-    mzd_breaks: numVal('mzd_breaks'), mzd_inprogress: numVal('mzd_inprogress'),
-    mzd_pending: numVal('mzd_pending'), mzd_closed: numVal('mzd_closed'),
-    ar_breaks: numVal('ar_breaks'), ar_inprogress: numVal('ar_inprogress'),
-    ar_pending: numVal('ar_pending'), ar_closed: numVal('ar_closed'),
   };
+
+  if(mesh === 'mina'){
+    Object.assign(payload, {
+      mina_author: val('mina_author'), mina_updatedAt: new Date().toISOString(),
+      mina_incoming: val('mina_in'), mina_outgoing: val('mina_out'), mina_status: val('mina_status'),
+      mina_breaks: numVal('mina_breaks'), mina_inprogress: numVal('mina_inprogress'),
+      mina_pending: numVal('mina_pending'), mina_closed: numVal('mina_closed'),
+    });
+  } else if(mesh === 'mzd'){
+    Object.assign(payload, {
+      mzd_author: val('mzd_author'), mzd_updatedAt: new Date().toISOString(),
+      mzd_incoming: val('mzd_in'), mzd_outgoing: val('mzd_out'), mzd_status: val('mzd_status'),
+      mzd_breaks: numVal('mzd_breaks'), mzd_inprogress: numVal('mzd_inprogress'),
+      mzd_pending: numVal('mzd_pending'), mzd_closed: numVal('mzd_closed'),
+    });
+  } else if(mesh === 'arf'){
+    Object.assign(payload, {
+      arf_author: val('arf_author'), arf_updatedAt: new Date().toISOString(),
+      arf_incoming: val('arf_in'), arf_outgoing: val('arf_out'), arf_status: val('arf_status'),
+      ar_breaks: numVal('ar_breaks'), ar_inprogress: numVal('ar_inprogress'),
+      ar_pending: numVal('ar_pending'), ar_closed: numVal('ar_closed'),
+    });
+  }
 
   const btn = document.getElementById('saveBtn');
   btn.disabled = true; btn.textContent = '⏳ جارٍ الحفظ...';
   try{
     await fetch(APPS_SCRIPT_URL, { method:'POST', body: JSON.stringify(payload) });
     showToast('✅ تم حفظ بيانات ' + date);
-    allReports[date] = mapPayloadToReport(payload);
+    allReports[date] = Object.assign({}, allReports[date]||{date}, payload);
     renderList();
+    closeMeshEntry();
     document.querySelector('.tab-btn[data-tab="view"]').click();
   }catch(e){
     console.error(e);
     showToast('⚠️ تعذر الحفظ، تحقق من الاتصال');
   }finally{
-    btn.disabled = false; btn.textContent = '💾 حفظ / تحديث بيانات اليوم';
+    btn.disabled = false; btn.textContent = '💾 حفظ بيانات هذا المشعر';
   }
 }
-
-function mapPayloadToReport(p){ return p; }
 
 function val(id){ return (document.getElementById(id).value||'').trim(); }
 function numVal(id){ const v = document.getElementById(id).value; return v===''? 0 : parseInt(v,10); }
@@ -798,6 +858,10 @@ function renderDashboard(){
   }
 }
 
+function meshBadgeInfo(statusText){
+  return /معزول/.test(statusText||'') ? {cls:'warn', label:'يوجد عزل'} : {cls:'', label:'مستقر'};
+}
+
 function renderList(){
   renderDashboard();
   const cont = document.getElementById('daysList');
@@ -808,19 +872,38 @@ function renderList(){
   }
   cont.innerHTML = dates.map(date=>{
     const r = allReports[date];
+    const minaB = meshBadgeInfo(r.mina_status);
+    const mzdB  = meshBadgeInfo(r.mzd_status);
+    const arfB  = meshBadgeInfo(r.arf_status);
     const totalBreaksOpen = (Number(r.mina_breaks)||0) + (Number(r.mzd_breaks)||0) + (Number(r.ar_breaks)||0);
-    const anyIsolated = /معزول|مغلق|كسر|متوقف/.test((r.mina_status||'')+(r.mzd_status||'')+(r.arf_status||''));
-    let badge = '<span class="badge">مستقر</span>';
-    if(anyIsolated) badge = '<span class="badge warn">يوجد عزل/كسر</span>';
-    if(totalBreaksOpen > 5) badge = '<span class="badge danger">انكسارات مرتفعة</span>';
+    let combinedBadge = '<span class="badge">مستقر</span>';
+    if(minaB.cls || mzdB.cls || arfB.cls) combinedBadge = '<span class="badge warn">يوجد عزل/كسر</span>';
+    if(totalBreaksOpen > 5) combinedBadge = '<span class="badge danger">انكسارات مرتفعة</span>';
     return `<div class="day-card" data-date="${date}">
       <div class="day-card-body">
-        <div class="row1"><b>${date} ${r.weekday? '· '+escapeHtml(r.weekday) : ''}</b>${badge}</div>
-        <div class="meta-line">${r.author? 'سجّله: '+escapeHtml(r.author)+' · ':''} آخر تحديث: ${formatTime(r.updatedAt)}</div>
+        <div class="row1"><b>${date} ${r.weekday? '· '+escapeHtml(r.weekday) : ''}</b>${combinedBadge}</div>
+        <div class="meta-line">آخر تحديث: ${formatTime(r.updatedAt)}</div>
+      </div>
+      <div class="mesh-rows">
+        <div class="mesh-row">
+          <span class="mesh-row-label">🟢 منى</span>
+          <span class="badge ${minaB.cls}">${minaB.label}</span>
+          <button type="button" class="btn secondary" data-action="view-mesh" data-mesh="mina">التفاصيل</button>
+        </div>
+        <div class="mesh-row">
+          <span class="mesh-row-label">🔵 مزدلفة</span>
+          <span class="badge ${mzdB.cls}">${mzdB.label}</span>
+          <button type="button" class="btn secondary" data-action="view-mesh" data-mesh="mzd">التفاصيل</button>
+        </div>
+        <div class="mesh-row">
+          <span class="mesh-row-label">🟠 عرفة</span>
+          <span class="badge ${arfB.cls}">${arfB.label}</span>
+          <button type="button" class="btn secondary" data-action="view-mesh" data-mesh="arf">التفاصيل</button>
+        </div>
       </div>
       <div style="display:flex;gap:8px;margin-top:10px;">
-        <button type="button" class="btn secondary" style="margin:0;padding:8px;font-size:13px;" data-action="edit">✏️ تعديل</button>
-        <button type="button" class="btn secondary" style="margin:0;padding:8px;font-size:13px;color:var(--danger);border-color:var(--danger);" data-action="delete">🗑️ حذف</button>
+        <button type="button" class="btn secondary" style="margin:0;padding:8px;font-size:13px;" data-action="view-all">📋 عرض الكل</button>
+        <button type="button" class="btn secondary" style="margin:0;padding:8px;font-size:13px;color:var(--danger);border-color:var(--danger);" data-action="delete">🗑️ حذف اليوم</button>
       </div>
     </div>`;
   }).join('');
@@ -832,6 +915,38 @@ function formatTime(iso){
   catch(e){ return iso; }
 }
 function escapeHtml(s){ return (s||'').toString().replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+const meshMeta = {
+  mina: {title:'🟢 مشعر منى', incoming:'mina_incoming', outgoing:'mina_outgoing', status:'mina_status', author:'mina_author', updatedAt:'mina_updatedAt', breaks:'mina_breaks', inprogress:'mina_inprogress', pending:'mina_pending', closed:'mina_closed'},
+  mzd:  {title:'🔵 مشعر مزدلفة', incoming:'mzd_incoming', outgoing:'mzd_outgoing', status:'mzd_status', author:'mzd_author', updatedAt:'mzd_updatedAt', breaks:'mzd_breaks', inprogress:'mzd_inprogress', pending:'mzd_pending', closed:'mzd_closed'},
+  arf:  {title:'🟠 مشعر عرفة', incoming:'arf_incoming', outgoing:'arf_outgoing', status:'arf_status', author:'arf_author', updatedAt:'arf_updatedAt', breaks:'ar_breaks', inprogress:'ar_inprogress', pending:'ar_pending', closed:'ar_closed'},
+};
+
+function openMeshDetail(date, mesh){
+  const r = allReports[date];
+  if(!r) return;
+  const meta = meshMeta[mesh];
+  const sheet = document.getElementById('detailSheet');
+  sheet.innerHTML = `
+    <button class="close-btn" onclick="closeDetail()">✕</button>
+    <h2 style="margin-top:0;">📅 ${date}${r.weekday? ' — '+escapeHtml(r.weekday):''}</h2>
+    ${sectionHtml(meta.title, r[meta.incoming], r[meta.outgoing], r[meta.status])}
+    <div class="detail-section">
+      <h4>⚠️ الانكسارات</h4>
+      <div class="stats-row">
+        <div class="stat-pill">الانكسارات<b>${r[meta.breaks]??0}</b></div>
+        <div class="stat-pill">جاري العمل<b>${r[meta.inprogress]??0}</b></div>
+        <div class="stat-pill">المعلق<b>${r[meta.pending]??0}</b></div>
+        <div class="stat-pill">المغلق<b>${r[meta.closed]??0}</b></div>
+      </div>
+    </div>
+    <p class="small-note">${r[meta.author]? 'سجّله: '+escapeHtml(r[meta.author])+' · ':''}آخر تحديث: ${formatTime(r[meta.updatedAt] || r.updatedAt)}</p>
+    <div style="display:flex;gap:8px;">
+      <button class="btn secondary" style="margin-top:0;" onclick="loadMeshIntoForm('${date}','${mesh}')">✏️ تعديل</button>
+    </div>
+  `;
+  document.getElementById('detailModal').classList.add('show');
+}
 
 function openDetail(date){
   const r = allReports[date];
@@ -870,10 +985,8 @@ function openDetail(date){
         <div class="stat-pill">المغلق<b>${r.ar_closed??0}</b></div>
       </div>
     </div>
-    <p class="small-note">${r.author? 'سجّله: '+escapeHtml(r.author)+' · ':''}آخر تحديث: ${formatTime(r.updatedAt)}</p>
     <div style="display:flex;gap:8px;">
-      <button class="btn secondary" style="margin-top:0;" onclick="loadIntoForm('${date}')">✏️ تعديل</button>
-      <button class="btn secondary" style="margin-top:0;color:var(--danger);border-color:var(--danger);" onclick="deleteEntry('${date}')">🗑️ حذف</button>
+      <button class="btn secondary" style="margin-top:0;color:var(--danger);border-color:var(--danger);" onclick="deleteEntry('${date}')">🗑️ حذف اليوم بالكامل</button>
     </div>
   `;
   document.getElementById('detailModal').classList.add('show');
@@ -893,17 +1006,17 @@ document.getElementById('daysList').addEventListener('click', (e)=>{
   if(!card) return;
   const date = card.dataset.date;
   if(btn){
-    if(btn.dataset.action === 'edit') loadIntoForm(date);
-    if(btn.dataset.action === 'delete') deleteEntry(date);
-  } else {
-    openDetail(date);
+    const action = btn.dataset.action;
+    if(action === 'view-mesh') openMeshDetail(date, btn.dataset.mesh);
+    else if(action === 'view-all') openDetail(date);
+    else if(action === 'delete') deleteEntry(date);
   }
 });
 
 document.getElementById('detailModal').addEventListener('click', (e)=>{ if(e.target.id==='detailModal') closeDetail(); });
 
 async function deleteEntry(date){
-  const sure = confirm('هل أنت متأكد من حذف بيانات يوم ' + date + '؟ لا يمكن التراجع عن هذا الإجراء.');
+  const sure = confirm('هل أنت متأكد من حذف كل بيانات يوم ' + date + ' (منى ومزدلفة وعرفة)؟ لا يمكن التراجع عن هذا الإجراء.');
   if(!sure) return;
   try{
     await fetch(APPS_SCRIPT_URL, { method:'POST', body: JSON.stringify({ date, action: 'delete' }) });
@@ -917,36 +1030,46 @@ async function deleteEntry(date){
   }
 }
 
-function loadIntoForm(date){
-  const r = allReports[date];
-  if(!r) return;
+function loadMeshIntoForm(date, mesh){
+  const r = allReports[date] || {};
   closeDetail();
   dateInput.value = date;
   document.getElementById('f_weekday').value = r.weekday||'';
-  document.getElementById('f_author').value = r.author||'';
-  document.getElementById('mina_in').value = r.mina_incoming||'';
-  document.getElementById('mina_out').value = r.mina_outgoing||'';
-  document.getElementById('mzd_in').value = r.mzd_incoming||'';
-  document.getElementById('mzd_out').value = r.mzd_outgoing||'';
-  document.getElementById('arf_in').value = r.arf_incoming||'';
-  document.getElementById('arf_out').value = r.arf_outgoing||'';
-  ['mina_in','mina_out','mzd_in','mzd_out','arf_in','arf_out'].forEach(renderListChips);
-  parseStatusText('mina', r.mina_status||'');
-  parseStatusText('mzd', r.mzd_status||'');
-  parseStatusText('arf', r.arf_status||'');
-  document.getElementById('mina_breaks').value = r.mina_breaks??'';
-  document.getElementById('mina_inprogress').value = r.mina_inprogress??'';
-  document.getElementById('mina_pending').value = r.mina_pending??'';
-  document.getElementById('mina_closed').value = r.mina_closed??'';
-  document.getElementById('mzd_breaks').value = r.mzd_breaks??'';
-  document.getElementById('mzd_inprogress').value = r.mzd_inprogress??'';
-  document.getElementById('mzd_pending').value = r.mzd_pending??'';
-  document.getElementById('mzd_closed').value = r.mzd_closed??'';
-  document.getElementById('ar_breaks').value = r.ar_breaks??'';
-  document.getElementById('ar_inprogress').value = r.ar_inprogress??'';
-  document.getElementById('ar_pending').value = r.ar_pending??'';
-  document.getElementById('ar_closed').value = r.ar_closed??'';
+
+  if(mesh === 'mina'){
+    document.getElementById('mina_author').value = r.mina_author||'';
+    document.getElementById('mina_in').value = r.mina_incoming||'';
+    document.getElementById('mina_out').value = r.mina_outgoing||'';
+    renderListChips('mina_in'); renderListChips('mina_out');
+    parseStatusText('mina', r.mina_status||'');
+    document.getElementById('mina_breaks').value = r.mina_breaks??'';
+    document.getElementById('mina_inprogress').value = r.mina_inprogress??'';
+    document.getElementById('mina_pending').value = r.mina_pending??'';
+    document.getElementById('mina_closed').value = r.mina_closed??'';
+  } else if(mesh === 'mzd'){
+    document.getElementById('mzd_author').value = r.mzd_author||'';
+    document.getElementById('mzd_in').value = r.mzd_incoming||'';
+    document.getElementById('mzd_out').value = r.mzd_outgoing||'';
+    renderListChips('mzd_in'); renderListChips('mzd_out');
+    parseStatusText('mzd', r.mzd_status||'');
+    document.getElementById('mzd_breaks').value = r.mzd_breaks??'';
+    document.getElementById('mzd_inprogress').value = r.mzd_inprogress??'';
+    document.getElementById('mzd_pending').value = r.mzd_pending??'';
+    document.getElementById('mzd_closed').value = r.mzd_closed??'';
+  } else if(mesh === 'arf'){
+    document.getElementById('arf_author').value = r.arf_author||'';
+    document.getElementById('arf_in').value = r.arf_incoming||'';
+    document.getElementById('arf_out').value = r.arf_outgoing||'';
+    renderListChips('arf_in'); renderListChips('arf_out');
+    parseStatusText('arf', r.arf_status||'');
+    document.getElementById('ar_breaks').value = r.ar_breaks??'';
+    document.getElementById('ar_inprogress').value = r.ar_inprogress??'';
+    document.getElementById('ar_pending').value = r.ar_pending??'';
+    document.getElementById('ar_closed').value = r.ar_closed??'';
+  }
+
   document.querySelector('.tab-btn[data-tab="entry"]').click();
+  openMeshEntry(mesh);
 }
 
 init();
