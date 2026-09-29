@@ -235,7 +235,7 @@
               <button type="button" class="btn secondary" style="width:auto;margin:0;padding:9px 14px;" onclick="addException('mina')">+ إضافة</button>
             </div>
             <div class="chips" id="mina_exceptions_chips"></div>
-            <div class="default-note">لو مفيش استثناءات مضافة، هيتسجل تلقائيًا "جميع المناطق مخدومة".</div>
+          
           </div>
           <textarea id="mina_status" style="display:none;"></textarea>
         </div>
@@ -356,7 +356,7 @@
       </div>
 
       <button class="btn" id="saveBtn" onclick="saveMeshEntry()">💾 حفظ بيانات هذا المشعر</button>
-      <p class="small-note" style="text-align:center;">هيتم حفظ بيانات هذا المشعر بس، من غير ما يأثر على بيانات المشاعر التانية لنفس اليوم.</p>
+      <p class="small-note" style="text-align:center;"></p>
     </div>
   </div>
 
@@ -370,7 +370,7 @@
 
       <div class="card">
         <h2>📈 إجمالي الانكسارات عبر الوقت (منى · مزدلفة · عرفة)</h2>
-        <p class="small-note" style="margin-top:-6px;">الأرقام دي إجمالي تراكمي مسجَّل في كل يوم، مش عدد انكسارات اليوم نفسه.</p>
+        <p class="small-note" style="margin-top:-6px;">الإجمالي التراكمي.</p>
         <div class="chart-wrap"><canvas id="chartTrend"></canvas></div>
       </div>
 
@@ -875,7 +875,7 @@ function renderDashboard(){
   document.getElementById('kpiGrid').innerHTML = `
     <div class="kpi-card"><div class="kpi-label">عدد الأيام المسجلة</div><div class="kpi-value">${dates.length}</div></div>
     <div class="kpi-card"><div class="kpi-label">آخر يوم مسجل</div><div class="kpi-value" style="font-size:16px;">${latestDate}</div><div class="kpi-sub">${escapeHtml(latest.weekday||'')}</div></div>
-    <div class="kpi-card"><div class="kpi-label">إجمالي الانكسارات (آخر يوم)</div><div class="kpi-value">${latestOpenTotal}</div></div>
+    <div class="kpi-card"><div class="kpi-label">إجمالي الانكسارات</div><div class="kpi-value">${latestOpenTotal}</div></div>
     <div class="kpi-card"><div class="kpi-label">أكثر منطقة تم عزلها</div><div class="kpi-value" style="font-size:16px;">${topZoneOverall? escapeHtml(topZoneOverall.zone) : '—'}</div><div class="kpi-sub">${topZoneOverall? topZoneOverall.total+' مرة' : 'لا يوجد'}</div></div>
   `;
 
