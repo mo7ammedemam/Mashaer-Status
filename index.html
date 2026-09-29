@@ -6,11 +6,11 @@
 <title>الحالة التشغيلية للمشاعر المقدسة</title>
 <script>
   // ================================================================
- //  Paste App Script URL here
+  
   const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyugnhZvdvuYAMICIO8WhpNihWEUA1BLjEFvKjWrTTu3jxFuig9nxHvZqNqQk1WpBsz/exec";
- 
+  // مثال: https://script.google.com/macros/s/AKfycb.../exec
 
-  //  Password
+  
   const SITE_PIN = "1607";
   // ================================================================
 </script>
@@ -204,7 +204,8 @@
           <label>الوارد</label>
           <div class="zone-builder">
             <div class="zone-row">
-              <select id="mina_in_select"></select>
+              <select id="mina_in_select" onchange="toggleOtherInput('mina_in')"></select>
+              <input type="text" id="mina_in_other_input" placeholder="اكتب اسم الوارد" style="display:none;flex:2;min-width:140px;">
               <button type="button" class="btn secondary" style="width:auto;margin:0;padding:9px 14px;" onclick="addListItem('mina_in')">+ إضافة</button>
             </div>
             <div class="chips" id="mina_in_chips"></div>
@@ -214,7 +215,8 @@
           <label>المنصرف</label>
           <div class="zone-builder">
             <div class="zone-row">
-              <select id="mina_out_select"></select>
+              <select id="mina_out_select" onchange="toggleOtherInput('mina_out')"></select>
+              <input type="text" id="mina_out_other_input" placeholder="اكتب اسم المنصرف" style="display:none;flex:2;min-width:140px;">
               <button type="button" class="btn secondary" style="width:auto;margin:0;padding:9px 14px;" onclick="addListItem('mina_out')">+ إضافة</button>
             </div>
             <div class="chips" id="mina_out_chips"></div>
@@ -233,7 +235,7 @@
               <button type="button" class="btn secondary" style="width:auto;margin:0;padding:9px 14px;" onclick="addException('mina')">+ إضافة</button>
             </div>
             <div class="chips" id="mina_exceptions_chips"></div>
-           
+            <div class="default-note">لو مفيش استثناءات مضافة، هيتسجل تلقائيًا "جميع المناطق مخدومة".</div>
           </div>
           <textarea id="mina_status" style="display:none;"></textarea>
         </div>
@@ -255,7 +257,8 @@
           <label>الوارد</label>
           <div class="zone-builder">
             <div class="zone-row">
-              <select id="mzd_in_select"></select>
+              <select id="mzd_in_select" onchange="toggleOtherInput('mzd_in')"></select>
+              <input type="text" id="mzd_in_other_input" placeholder="اكتب اسم الوارد" style="display:none;flex:2;min-width:140px;">
               <button type="button" class="btn secondary" style="width:auto;margin:0;padding:9px 14px;" onclick="addListItem('mzd_in')">+ إضافة</button>
             </div>
             <div class="chips" id="mzd_in_chips"></div>
@@ -265,7 +268,8 @@
           <label>المنصرف</label>
           <div class="zone-builder">
             <div class="zone-row">
-              <select id="mzd_out_select"></select>
+              <select id="mzd_out_select" onchange="toggleOtherInput('mzd_out')"></select>
+              <input type="text" id="mzd_out_other_input" placeholder="اكتب اسم المنصرف" style="display:none;flex:2;min-width:140px;">
               <button type="button" class="btn secondary" style="width:auto;margin:0;padding:9px 14px;" onclick="addListItem('mzd_out')">+ إضافة</button>
             </div>
             <div class="chips" id="mzd_out_chips"></div>
@@ -306,7 +310,8 @@
           <label>الوارد</label>
           <div class="zone-builder">
             <div class="zone-row">
-              <select id="arf_in_select"></select>
+              <select id="arf_in_select" onchange="toggleOtherInput('arf_in')"></select>
+              <input type="text" id="arf_in_other_input" placeholder="اكتب اسم الوارد" style="display:none;flex:2;min-width:140px;">
               <button type="button" class="btn secondary" style="width:auto;margin:0;padding:9px 14px;" onclick="addListItem('arf_in')">+ إضافة</button>
             </div>
             <div class="chips" id="arf_in_chips"></div>
@@ -316,7 +321,8 @@
           <label>المنصرف</label>
           <div class="zone-builder">
             <div class="zone-row">
-              <select id="arf_out_select"></select>
+              <select id="arf_out_select" onchange="toggleOtherInput('arf_out')"></select>
+              <input type="text" id="arf_out_other_input" placeholder="اكتب اسم المنصرف" style="display:none;flex:2;min-width:140px;">
               <button type="button" class="btn secondary" style="width:auto;margin:0;padding:9px 14px;" onclick="addListItem('arf_out')">+ إضافة</button>
             </div>
             <div class="chips" id="arf_out_chips"></div>
@@ -364,7 +370,7 @@
 
       <div class="card">
         <h2>📈 إجمالي الانكسارات عبر الوقت (منى · مزدلفة · عرفة)</h2>
-        <p class="small-note" style="margin-top:-6px;">الإجمالي التراكمي.</p>
+        <p class="small-note" style="margin-top:-6px;">الأرقام دي إجمالي تراكمي مسجَّل في كل يوم، مش عدد انكسارات اليوم نفسه.</p>
         <div class="chart-wrap"><canvas id="chartTrend"></canvas></div>
       </div>
 
@@ -500,7 +506,7 @@ const OPTIONS = {
 ],
 
 };
-// 👇 أسماء المناطق لكل مشعر
+//أسماء المناطق لكل مشعر 
 const ZONES = {
 mina: ['منى 1','منى 2','منى 3','منى 4','منى 5','منى 6','منى 7','منى 8','منى 9','منى 10','منى 11'],
 mzd: ['مزدلفة 1','مزدلفة 2','مزدلفة 3','مزدلفة 4','مزدلفة 5'],
@@ -510,15 +516,42 @@ arf: ['عرفات 1','عرفات 2','عرفات 3','عرفات 4','عرفات 5'
 
 const exceptionsState = { mina: [], mzd: [], arf: [] };
 
+const OTHER_OPTION_LABEL = 'خيار آخر';
+
 function populateSelect(fieldId){
   const sel = document.getElementById(fieldId+'_select');
   if(!sel) return;
-  sel.innerHTML = OPTIONS[fieldId].map(o=>`<option value="${escapeHtml(o)}">${escapeHtml(o)}</option>`).join('');
+  const opts = OPTIONS[fieldId].concat([OTHER_OPTION_LABEL]);
+  sel.innerHTML = opts.map(o=>`<option value="${escapeHtml(o)}">${escapeHtml(o)}</option>`).join('');
+}
+function toggleOtherInput(fieldId){
+  const sel = document.getElementById(fieldId+'_select');
+  const otherInput = document.getElementById(fieldId+'_other_input');
+  if(!otherInput) return;
+  if(sel.value === OTHER_OPTION_LABEL){
+    otherInput.style.display = 'block';
+    otherInput.focus();
+  } else {
+    otherInput.style.display = 'none';
+    otherInput.value = '';
+  }
 }
 function addListItem(fieldId){
   const sel = document.getElementById(fieldId+'_select');
-  const val = sel.value;
+  let val = sel.value;
   if(!val) return;
+  if(val === OTHER_OPTION_LABEL){
+    const otherInput = document.getElementById(fieldId+'_other_input');
+    const customVal = otherInput ? otherInput.value.trim() : '';
+    if(!customVal){
+      showToast('⚠️ اكتب اسم الوارد أو المنصرف في الخانة المجاورة أولاً');
+      if(otherInput) otherInput.focus();
+      return;
+    }
+    val = customVal;
+    if(otherInput){ otherInput.value=''; otherInput.style.display='none'; }
+    sel.value = OPTIONS[fieldId][0] || '';
+  }
   const current = (document.getElementById(fieldId).value||'').split('\n').map(s=>s.trim()).filter(Boolean);
   if(!current.includes(val)) current.push(val);
   document.getElementById(fieldId).value = current.join('\n');
@@ -671,21 +704,30 @@ function clearMeshFields(mesh){
     document.getElementById('mina_author').value = '';
     document.getElementById('mina_in').value = ''; document.getElementById('mina_out').value = '';
     renderListChips('mina_in'); renderListChips('mina_out');
+    hideOtherInput('mina_in'); hideOtherInput('mina_out');
     parseStatusText('mina', '');
     ['mina_breaks','mina_inprogress','mina_pending','mina_closed'].forEach(id=>document.getElementById(id).value='');
   } else if(mesh === 'mzd'){
     document.getElementById('mzd_author').value = '';
     document.getElementById('mzd_in').value = ''; document.getElementById('mzd_out').value = '';
     renderListChips('mzd_in'); renderListChips('mzd_out');
+    hideOtherInput('mzd_in'); hideOtherInput('mzd_out');
     parseStatusText('mzd', '');
     ['mzd_breaks','mzd_inprogress','mzd_pending','mzd_closed'].forEach(id=>document.getElementById(id).value='');
   } else if(mesh === 'arf'){
     document.getElementById('arf_author').value = '';
     document.getElementById('arf_in').value = ''; document.getElementById('arf_out').value = '';
     renderListChips('arf_in'); renderListChips('arf_out');
+    hideOtherInput('arf_in'); hideOtherInput('arf_out');
     parseStatusText('arf', '');
     ['ar_breaks','ar_inprogress','ar_pending','ar_closed'].forEach(id=>document.getElementById(id).value='');
   }
+}
+function hideOtherInput(fieldId){
+  const otherInput = document.getElementById(fieldId+'_other_input');
+  const sel = document.getElementById(fieldId+'_select');
+  if(otherInput){ otherInput.value=''; otherInput.style.display='none'; }
+  if(sel) sel.value = OPTIONS[fieldId][0] || '';
 }
 
 function openMeshEntry(mesh){
@@ -1127,6 +1169,7 @@ function loadMeshIntoForm(date, mesh){
     document.getElementById('mina_in').value = r.mina_incoming||'';
     document.getElementById('mina_out').value = r.mina_outgoing||'';
     renderListChips('mina_in'); renderListChips('mina_out');
+    hideOtherInput('mina_in'); hideOtherInput('mina_out');
     parseStatusText('mina', r.mina_status||'');
     document.getElementById('mina_breaks').value = r.mina_breaks??'';
     document.getElementById('mina_inprogress').value = r.mina_inprogress??'';
@@ -1137,6 +1180,7 @@ function loadMeshIntoForm(date, mesh){
     document.getElementById('mzd_in').value = r.mzd_incoming||'';
     document.getElementById('mzd_out').value = r.mzd_outgoing||'';
     renderListChips('mzd_in'); renderListChips('mzd_out');
+    hideOtherInput('mzd_in'); hideOtherInput('mzd_out');
     parseStatusText('mzd', r.mzd_status||'');
     document.getElementById('mzd_breaks').value = r.mzd_breaks??'';
     document.getElementById('mzd_inprogress').value = r.mzd_inprogress??'';
@@ -1147,6 +1191,7 @@ function loadMeshIntoForm(date, mesh){
     document.getElementById('arf_in').value = r.arf_incoming||'';
     document.getElementById('arf_out').value = r.arf_outgoing||'';
     renderListChips('arf_in'); renderListChips('arf_out');
+    hideOtherInput('arf_in'); hideOtherInput('arf_out');
     parseStatusText('arf', r.arf_status||'');
     document.getElementById('ar_breaks').value = r.ar_breaks??'';
     document.getElementById('ar_inprogress').value = r.ar_inprogress??'';
