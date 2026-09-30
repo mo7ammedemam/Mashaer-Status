@@ -8,9 +8,9 @@
   // ================================================================
   
   const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyugnhZvdvuYAMICIO8WhpNihWEUA1BLjEFvKjWrTTu3jxFuig9nxHvZqNqQk1WpBsz/exec";
-  // مثال: https://script.google.com/macros/s/AKfycb.../exec
-
   
+
+ 
   const SITE_PIN = "1607";
   // ================================================================
 </script>
@@ -205,7 +205,7 @@
           <div class="zone-builder">
             <div class="zone-row">
               <select id="mina_in_select" onchange="toggleOtherInput('mina_in')"></select>
-              <input type="text" id="mina_in_other_input" placeholder="اكتب اسم الوارد" style="display:none;flex:2;min-width:140px;">
+              <input type="text" id="mina_in_other_input" placeholder="اكتب اسم الخزان" style="display:none;flex:2;min-width:140px;">
               <button type="button" class="btn secondary" style="width:auto;margin:0;padding:9px 14px;" onclick="addListItem('mina_in')">+ إضافة</button>
             </div>
             <div class="chips" id="mina_in_chips"></div>
@@ -216,7 +216,7 @@
           <div class="zone-builder">
             <div class="zone-row">
               <select id="mina_out_select" onchange="toggleOtherInput('mina_out')"></select>
-              <input type="text" id="mina_out_other_input" placeholder="اكتب اسم المنصرف" style="display:none;flex:2;min-width:140px;">
+              <input type="text" id="mina_out_other_input" placeholder="اكتب اسم الخزان" style="display:none;flex:2;min-width:140px;">
               <button type="button" class="btn secondary" style="width:auto;margin:0;padding:9px 14px;" onclick="addListItem('mina_out')">+ إضافة</button>
             </div>
             <div class="chips" id="mina_out_chips"></div>
@@ -235,7 +235,7 @@
               <button type="button" class="btn secondary" style="width:auto;margin:0;padding:9px 14px;" onclick="addException('mina')">+ إضافة</button>
             </div>
             <div class="chips" id="mina_exceptions_chips"></div>
-          
+            <div class="default-note">لو مفيش استثناءات مضافة، هيتسجل تلقائيًا "جميع المناطق مخدومة".</div>
           </div>
           <textarea id="mina_status" style="display:none;"></textarea>
         </div>
@@ -258,7 +258,7 @@
           <div class="zone-builder">
             <div class="zone-row">
               <select id="mzd_in_select" onchange="toggleOtherInput('mzd_in')"></select>
-              <input type="text" id="mzd_in_other_input" placeholder="اكتب اسم الوارد" style="display:none;flex:2;min-width:140px;">
+              <input type="text" id="mzd_in_other_input" placeholder="اكتب اسم الخزان" style="display:none;flex:2;min-width:140px;">
               <button type="button" class="btn secondary" style="width:auto;margin:0;padding:9px 14px;" onclick="addListItem('mzd_in')">+ إضافة</button>
             </div>
             <div class="chips" id="mzd_in_chips"></div>
@@ -269,7 +269,7 @@
           <div class="zone-builder">
             <div class="zone-row">
               <select id="mzd_out_select" onchange="toggleOtherInput('mzd_out')"></select>
-              <input type="text" id="mzd_out_other_input" placeholder="اكتب اسم المنصرف" style="display:none;flex:2;min-width:140px;">
+              <input type="text" id="mzd_out_other_input" placeholder="اكتب اسم الخزان" style="display:none;flex:2;min-width:140px;">
               <button type="button" class="btn secondary" style="width:auto;margin:0;padding:9px 14px;" onclick="addListItem('mzd_out')">+ إضافة</button>
             </div>
             <div class="chips" id="mzd_out_chips"></div>
@@ -311,7 +311,7 @@
           <div class="zone-builder">
             <div class="zone-row">
               <select id="arf_in_select" onchange="toggleOtherInput('arf_in')"></select>
-              <input type="text" id="arf_in_other_input" placeholder="اكتب اسم الوارد" style="display:none;flex:2;min-width:140px;">
+              <input type="text" id="arf_in_other_input" placeholder="اكتب اسم الخزان" style="display:none;flex:2;min-width:140px;">
               <button type="button" class="btn secondary" style="width:auto;margin:0;padding:9px 14px;" onclick="addListItem('arf_in')">+ إضافة</button>
             </div>
             <div class="chips" id="arf_in_chips"></div>
@@ -322,7 +322,7 @@
           <div class="zone-builder">
             <div class="zone-row">
               <select id="arf_out_select" onchange="toggleOtherInput('arf_out')"></select>
-              <input type="text" id="arf_out_other_input" placeholder="اكتب اسم المنصرف" style="display:none;flex:2;min-width:140px;">
+              <input type="text" id="arf_out_other_input" placeholder="اكتب اسم الخزان" style="display:none;flex:2;min-width:140px;">
               <button type="button" class="btn secondary" style="width:auto;margin:0;padding:9px 14px;" onclick="addListItem('arf_out')">+ إضافة</button>
             </div>
             <div class="chips" id="arf_out_chips"></div>
@@ -356,7 +356,7 @@
       </div>
 
       <button class="btn" id="saveBtn" onclick="saveMeshEntry()">💾 حفظ بيانات هذا المشعر</button>
-      <p class="small-note" style="text-align:center;"></p>
+      <p class="small-note" style="text-align:center;">هيتم حفظ بيانات هذا المشعر بس، من غير ما يأثر على بيانات المشاعر التانية لنفس اليوم.</p>
     </div>
   </div>
 
@@ -370,7 +370,7 @@
 
       <div class="card">
         <h2>📈 إجمالي الانكسارات عبر الوقت (منى · مزدلفة · عرفة)</h2>
-        <p class="small-note" style="margin-top:-6px;">الإجمالي التراكمي.</p>
+        <p class="small-note" style="margin-top:-6px;">الأرقام دي إجمالي تراكمي مسجَّل في كل يوم، مش عدد انكسارات اليوم نفسه.</p>
         <div class="chart-wrap"><canvas id="chartTrend"></canvas></div>
       </div>
 
@@ -437,7 +437,7 @@ let allReports = {};
 const weekdayNamesAr = ["الأحد","الإثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت"];
 
 // ================================================================
-// 👇  (data validation)
+// 👇 (data validation)
 const OPTIONS = {
   mina_in: [
   'البيعة العلوي',
@@ -506,7 +506,8 @@ const OPTIONS = {
 ],
 
 };
-//أسماء المناطق لكل مشعر 
+// 👇 أسماء المناطق لكل مشعر 
+
 const ZONES = {
 mina: ['منى 1','منى 2','منى 3','منى 4','منى 5','منى 6','منى 7','منى 8','منى 9','منى 10','منى 11'],
 mzd: ['مزدلفة 1','مزدلفة 2','مزدلفة 3','مزدلفة 4','مزدلفة 5'],
@@ -544,7 +545,7 @@ function addListItem(fieldId){
     const otherInput = document.getElementById(fieldId+'_other_input');
     const customVal = otherInput ? otherInput.value.trim() : '';
     if(!customVal){
-      showToast('⚠️ اكتب اسم الوارد أو المنصرف في الخانة المجاورة أولاً');
+      showToast('⚠️ اكتب اسم الخزان في الخانة المجاورة أولاً');
       if(otherInput) otherInput.focus();
       return;
     }
@@ -751,12 +752,60 @@ function closeMeshEntry(){
 
 function refreshList(){ loadReports(); showToast('جاري التحديث...'); }
 
+function getMeshFieldNames(mesh){
+  if(mesh === 'mina') return {breaks:'mina_breaks', inprogress:'mina_inprogress', pending:'mina_pending', closed:'mina_closed', label:'منى'};
+  if(mesh === 'mzd')  return {breaks:'mzd_breaks',  inprogress:'mzd_inprogress',  pending:'mzd_pending',  closed:'mzd_closed',  label:'مزدلفة'};
+  return {breaks:'ar_breaks', inprogress:'ar_inprogress', pending:'ar_pending', closed:'ar_closed', label:'عرفة'};
+}
+
+// بيرجع آخر قيمة "إجمالي الانكسارات" مسجّلة لنفس المشعر في أقرب يوم سابق (بيتجاهل اليوم اللي بيتعدّل دلوقتي نفسه)
+function getPreviousMeshBreaks(mesh, beforeDate, excludeDate){
+  const fields = getMeshFieldNames(mesh);
+  const priorDates = Object.keys(allReports)
+    .filter(d => d < beforeDate && d !== excludeDate)
+    .sort();
+  if(priorDates.length === 0) return null; // مفيش يوم سابق نقارن بيه
+  const prevDate = priorDates[priorDates.length - 1];
+  const v = allReports[prevDate][fields.breaks];
+  return (v === undefined || v === '') ? 0 : (Number(v) || 0);
+}
+
 async function saveMeshEntry(){
   if(!isConfigured()){ showToast('⚠️ اضبط رابط قاعدة البيانات أولاً'); return; }
   const mesh = currentMesh;
   if(!mesh) return;
   const newDate = dateInput.value;
   if(!newDate){ showToast('يرجى اختيار التاريخ'); return; }
+
+  const fields = getMeshFieldNames(mesh);
+  const breaksVal      = numVal(fields.breaks);
+  const inprogressVal  = numVal(fields.inprogress);
+  const pendingVal     = numVal(fields.pending);
+  const closedVal      = numVal(fields.closed);
+
+  // ---------- تحقق 1: مجموع (جاري العمل + المعلق + المغلق) لازم يساوي إجمالي الانكسارات بالظبط ----------
+  const sumParts = inprogressVal + pendingVal + closedVal;
+  if(sumParts !== breaksVal){
+    alert(
+      '⚠️ في خطأ بالأرقام:\n\n' +
+      'إجمالي الانكسارات = ' + breaksVal + '\n' +
+      'مجموع (جاري العمل + المعلق + المغلق) = ' + sumParts + ' (' + inprogressVal + ' + ' + pendingVal + ' + ' + closedVal + ')\n\n' +
+      'لازم المجموع ده يساوي إجمالي الانكسارات بالظبط. راجع الأرقام وسجّل تاني.'
+    );
+    return;
+  }
+
+  // ---------- تحقق 2: إجمالي الانكسارات لازم يكون أعلى من أو يساوي آخر تسجيل سابق لنفس المشعر ----------
+  const prevBreaks = getPreviousMeshBreaks(mesh, newDate, editingOriginalDate);
+  if(prevBreaks !== null && breaksVal < prevBreaks){
+    alert(
+      '⚠️ في خطأ بالأرقام:\n\n' +
+      'إجمالي انكسارات ' + fields.label + ' اللي دخلته = ' + breaksVal + '\n' +
+      'آخر إجمالي مسجّل قبل كده = ' + prevBreaks + '\n\n' +
+      'بما إن الرقم ده تراكمي، لازم يكون مساوي أو أعلى من آخر تسجيل سابق، مش أقل منه. راجع الرقم وسجّل تاني.'
+    );
+    return;
+  }
 
   const payload = {
     date: newDate,
@@ -769,22 +818,22 @@ async function saveMeshEntry(){
     Object.assign(payload, {
       mina_author: val('mina_author'), mina_updatedAt: new Date().toISOString(),
       mina_incoming: val('mina_in'), mina_outgoing: val('mina_out'), mina_status: val('mina_status'),
-      mina_breaks: numVal('mina_breaks'), mina_inprogress: numVal('mina_inprogress'),
-      mina_pending: numVal('mina_pending'), mina_closed: numVal('mina_closed'),
+      mina_breaks: breaksVal, mina_inprogress: inprogressVal,
+      mina_pending: pendingVal, mina_closed: closedVal,
     });
   } else if(mesh === 'mzd'){
     Object.assign(payload, {
       mzd_author: val('mzd_author'), mzd_updatedAt: new Date().toISOString(),
       mzd_incoming: val('mzd_in'), mzd_outgoing: val('mzd_out'), mzd_status: val('mzd_status'),
-      mzd_breaks: numVal('mzd_breaks'), mzd_inprogress: numVal('mzd_inprogress'),
-      mzd_pending: numVal('mzd_pending'), mzd_closed: numVal('mzd_closed'),
+      mzd_breaks: breaksVal, mzd_inprogress: inprogressVal,
+      mzd_pending: pendingVal, mzd_closed: closedVal,
     });
   } else if(mesh === 'arf'){
     Object.assign(payload, {
       arf_author: val('arf_author'), arf_updatedAt: new Date().toISOString(),
       arf_incoming: val('arf_in'), arf_outgoing: val('arf_out'), arf_status: val('arf_status'),
-      ar_breaks: numVal('ar_breaks'), ar_inprogress: numVal('ar_inprogress'),
-      ar_pending: numVal('ar_pending'), ar_closed: numVal('ar_closed'),
+      ar_breaks: breaksVal, ar_inprogress: inprogressVal,
+      ar_pending: pendingVal, ar_closed: closedVal,
     });
   }
 
@@ -875,7 +924,7 @@ function renderDashboard(){
   document.getElementById('kpiGrid').innerHTML = `
     <div class="kpi-card"><div class="kpi-label">عدد الأيام المسجلة</div><div class="kpi-value">${dates.length}</div></div>
     <div class="kpi-card"><div class="kpi-label">آخر يوم مسجل</div><div class="kpi-value" style="font-size:16px;">${latestDate}</div><div class="kpi-sub">${escapeHtml(latest.weekday||'')}</div></div>
-    <div class="kpi-card"><div class="kpi-label">إجمالي الانكسارات</div><div class="kpi-value">${latestOpenTotal}</div></div>
+    <div class="kpi-card"><div class="kpi-label">إجمالي الانكسارات (آخر يوم)</div><div class="kpi-value">${latestOpenTotal}</div></div>
     <div class="kpi-card"><div class="kpi-label">أكثر منطقة تم عزلها</div><div class="kpi-value" style="font-size:16px;">${topZoneOverall? escapeHtml(topZoneOverall.zone) : '—'}</div><div class="kpi-sub">${topZoneOverall? topZoneOverall.total+' مرة' : 'لا يوجد'}</div></div>
   `;
 
