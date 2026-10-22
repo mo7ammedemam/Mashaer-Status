@@ -6,11 +6,11 @@
 <title>الحالة التشغيلية للمشاعر المقدسة</title>
 <script>
   // ================================================================
-  
+
   const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyugnhZvdvuYAMICIO8WhpNihWEUA1BLjEFvKjWrTTu3jxFuig9nxHvZqNqQk1WpBsz/exec";
   // مثال: https://script.google.com/macros/s/AKfycb.../exec
 
-  
+ 
   const SITE_PIN = "1607";
   // ================================================================
 </script>
@@ -237,6 +237,20 @@
   .badge{box-shadow:0 0 6px rgba(0,214,143,.35);}
   .badge.warn{box-shadow:0 0 6px rgba(255,176,32,.45);}
   .badge.danger{box-shadow:0 0 6px rgba(225,29,72,.35);}
+
+  /* ===== درجة متوسطة: لا داكنة ولا فاتحة ===== */
+  :root{
+    --bg:#b7c5d8; --card:#e9eff7; --border:#93a7c0; --text:#0f1b2a; --text-dim:#3b4e66;
+    --shadow:0 4px 16px rgba(20,40,70,.18);
+  }
+  body::before{background:radial-gradient(600px 400px at 15% 10%,rgba(0,214,143,.26),transparent 70%),
+                          radial-gradient(500px 400px at 85% 90%,rgba(0,184,255,.24),transparent 70%);}
+  header{background:linear-gradient(120deg,#93e3c8,#8ccdea,#93e3c8);background-size:200% 100%;box-shadow:0 6px 26px rgba(0,214,143,.35);}
+  .mesh-select-banner{background:linear-gradient(120deg,#93e3c8,#8ccdea);}
+  #pinLock{background:radial-gradient(circle at 50% 30%,#93e3c8,#a9bbd3);}
+  input[type=text],input[type=date],input[type=number],textarea,.zone-row select,details.dropdown,#pinLock input{background:#f4f8fc;}
+  .stat-pill,.detail-box,.mesh-row{background:#d9e4f1;}
+  select option{background:#f4f8fc;}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 </head>
@@ -982,8 +996,8 @@ function parseZoneExceptions(text){
 function renderDashboard(){
   if (typeof Chart === 'undefined') return; // مكتبة الرسم لسه مبتحملتش
   Chart.defaults.font.family = "'GE SS Two Bold', Tahoma, sans-serif";
-  Chart.defaults.color = '#4a5d73';
-  Chart.defaults.borderColor = 'rgba(20,32,46,.09)';
+  Chart.defaults.color = '#2a3b50';
+  Chart.defaults.borderColor = 'rgba(20,32,46,.15)';
   Chart.defaults.animation.duration = 1100;
   Chart.defaults.animation.easing = 'easeOutQuart';
   const dates = Object.keys(allReports).sort(); // تصاعديًا حسب التاريخ
