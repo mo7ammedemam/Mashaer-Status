@@ -6,11 +6,11 @@
 <title>الحالة التشغيلية للمشاعر المقدسة</title>
 <script>
   // ================================================================
-
+  
   const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyugnhZvdvuYAMICIO8WhpNihWEUA1BLjEFvKjWrTTu3jxFuig9nxHvZqNqQk1WpBsz/exec";
   // مثال: https://script.google.com/macros/s/AKfycb.../exec
 
-
+  
   const SITE_PIN = "1607";
   // ================================================================
 </script>
@@ -29,8 +29,8 @@
   input,select,textarea,button{font-family:inherit;}
   :root{
     --bg:#f5f7f6; --card:#ffffff; --border:#e2e6e4; --text:#1b241f; --text-dim:#5b6660;
-    --accent:#0f7a4f; --accent-dark:#0a5c3a; --accent-soft:#e6f4ee;
-    --warn:#b45309; --warn-soft:#fef3e0; --danger:#b91c1c; --danger-soft:#fdecec;
+    --accent:#00d68f; --accent-dark:#0a5c3a; --accent-soft:#e6f4ee;
+    --warn:#b45309; --warn-soft:#fef3e0; --danger:#ff3d71; --danger-soft:#fdecec;
     --shadow: 0 1px 3px rgba(20,30,25,.06), 0 1px 2px rgba(20,30,25,.04);
   }
   *{box-sizing:border-box;}
@@ -121,9 +121,9 @@
     border-radius:14px;border:1px solid var(--border);background:var(--card);color:var(--text);
     font-size:16px;font-weight:700;cursor:pointer;box-shadow:var(--shadow);font-family:inherit;
   }
-  .mesh-select-btn.mina-c{border-right:5px solid #0f7a4f;}
-  .mesh-select-btn.mzd-c{border-right:5px solid #2563eb;}
-  .mesh-select-btn.arf-c{border-right:5px solid #d97706;}
+  .mesh-select-btn.mina-c{border-right:5px solid #00d68f;}
+  .mesh-select-btn.mzd-c{border-right:5px solid #00b8ff;}
+  .mesh-select-btn.arf-c{border-right:5px solid #ffb020;}
   .mesh-card{display:none;}
   .mesh-card.active{display:block;}
   .mesh-rows{margin-top:10px;display:flex;flex-direction:column;gap:8px;}
@@ -144,6 +144,99 @@
     margin:0;color:#fff;font-size:17px;font-weight:800;line-height:1.6;
   }
   .chart-wrap-sm{height:220px;}
+
+  /* ===== ثيم النيون والحركة ===== */
+  :root{
+    --bg:#070b12; --card:#0e1520; --border:#1c2a3a; --text:#e6f1ff; --text-dim:#8aa0b8;
+    --accent:#00d68f; --accent-dark:#00c2ff; --accent-soft:rgba(0,245,160,.07);
+    --warn:#ffb020; --warn-soft:rgba(255,176,32,.12); --danger:#ff3d71; --danger-soft:rgba(255,61,113,.12);
+    --shadow:0 4px 18px rgba(0,0,0,.45); --glow:0 0 12px rgba(0,245,160,.45), 0 0 28px rgba(0,194,255,.2);
+  }
+  html{color-scheme:dark;}
+  body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+    background:radial-gradient(600px 400px at 15% 10%,rgba(0,245,160,.12),transparent 70%),
+               radial-gradient(500px 400px at 85% 90%,rgba(0,184,255,.12),transparent 70%);
+    animation:bgFloat 14s ease-in-out infinite alternate;}
+  @keyframes bgFloat{to{transform:translate(30px,-20px) scale(1.08);}}
+  header{background:linear-gradient(120deg,#07182a,#0a2a2c,#07182a);background-size:200% 100%;
+    animation:hdrShift 10s ease infinite;border-bottom:1px solid var(--accent);box-shadow:0 6px 30px rgba(0,245,160,.25);}
+  @keyframes hdrShift{50%{background-position:100% 0;}}
+  header h1{color:#eafff7;text-shadow:0 0 10px var(--accent),0 0 26px rgba(0,245,160,.6);}
+  .tabs,.card,.kpi-card,.day-card,.mesh-select-btn{border-color:var(--border);}
+  .tab-btn{position:relative;overflow:hidden;transition:all .25s;}
+  .tab-btn:hover{color:var(--accent);text-shadow:0 0 8px rgba(0,245,160,.6);}
+  .tab-btn.active{color:#04110b;box-shadow:var(--glow);}
+  .btn,.mesh-select-btn{position:relative;overflow:hidden;transition:transform .2s,box-shadow .25s,border-color .25s,background .25s;}
+  .btn{color:#04110b;}
+  .btn.secondary{color:var(--text);}
+  .btn:hover,.mesh-select-btn:hover{transform:translateY(-2px);box-shadow:var(--glow);}
+  .btn.secondary:hover{border-color:var(--accent);color:var(--accent);}
+  .btn:active,.mesh-select-btn:active{transform:scale(.97);}
+  .back-btn{color:var(--warn)!important;}
+  .mesh-select-btn.mina-c:hover{box-shadow:0 0 18px rgba(0,245,160,.55);}
+  .mesh-select-btn.mzd-c:hover{box-shadow:0 0 18px rgba(0,184,255,.55);}
+  .mesh-select-btn.arf-c:hover{box-shadow:0 0 18px rgba(255,176,32,.55);}
+  .card,.kpi-card,.day-card{position:relative;transition:transform .25s,box-shadow .3s,border-color .3s;
+    background-image:radial-gradient(260px circle at var(--mx,50%) var(--my,0%),rgba(0,245,160,.10),transparent 60%);}
+  .card:hover,.kpi-card:hover,.day-card:hover{border-color:rgba(0,245,160,.55);box-shadow:0 0 16px rgba(0,245,160,.22);}
+  .kpi-card:hover,.day-card:hover{transform:translateY(-3px);}
+  .kpi-card .kpi-value{color:var(--accent-dark);text-shadow:0 0 12px rgba(0,194,255,.7);}
+  .view.active{animation:viewIn .45s ease both;}
+  @keyframes viewIn{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:none;}}
+  .view.active>.card,.view.active #dashContent>.card,.view.active .kpi-card{animation:viewIn .5s ease both;}
+  .kpi-card:nth-child(2){animation-delay:.07s!important}.kpi-card:nth-child(3){animation-delay:.14s!important}.kpi-card:nth-child(4){animation-delay:.21s!important}
+  .chip{animation:popIn .3s cubic-bezier(.3,1.6,.5,1) both;box-shadow:0 0 8px rgba(255,176,32,.25);}
+  @keyframes popIn{from{transform:scale(.5);opacity:0;}to{transform:none;opacity:1;}}
+  .chip b{transition:transform .2s,color .2s;}.chip b:hover{transform:rotate(90deg) scale(1.3);color:var(--danger);}
+  .badge{box-shadow:0 0 8px currentColor;}
+  .status-dot.synced{box-shadow:0 0 8px #00d68f;animation:pulse 1.6s infinite;}
+  .status-dot.offline{box-shadow:0 0 8px var(--warn);}
+  @keyframes pulse{50%{transform:scale(1.6);opacity:.55;}}
+  input,textarea,select{transition:border-color .2s,box-shadow .25s;}
+  input:focus,textarea:focus,select:focus{outline:none!important;border-color:var(--accent);box-shadow:0 0 0 2px rgba(0,245,160,.25),0 0 14px rgba(0,245,160,.35);}
+  select option{background:#0e1520;color:var(--text);}
+  details.dropdown,.zone-row select{background:var(--bg);}
+  .toast{background:var(--accent);color:#04110b;box-shadow:var(--glow);transform:translate(-50%,20px);transition:opacity .3s,transform .3s;}
+  .toast.show{transform:translate(-50%,0);}
+  #detailModal{backdrop-filter:blur(4px);}
+  #detailModal.show .sheet{animation:sheetUp .35s cubic-bezier(.2,.9,.3,1) both;border-top:1px solid var(--accent);box-shadow:0 -6px 30px rgba(0,245,160,.25);}
+  @keyframes sheetUp{from{transform:translateY(60px);opacity:0;}to{transform:none;opacity:1;}}
+  .mesh-select-banner{background:linear-gradient(120deg,#07182a,#0a2a2c);border:1px solid var(--accent);box-shadow:var(--glow);}
+  .mesh-select-banner h2{text-shadow:0 0 12px var(--accent);}
+  #pinLock{background:radial-gradient(circle at 50% 30%,#0a2a2c,#050810);}
+  #pinLock .box{background:var(--card);border:1px solid var(--accent);box-shadow:var(--glow);animation:viewIn .6s ease both;}
+  #pinLock button{color:#04110b;}
+  #pinLock .icon{animation:pulse 2s infinite;}
+  .ripple{position:absolute;border-radius:50%;background:rgba(255,255,255,.45);transform:scale(0);animation:rip .6s ease-out;pointer-events:none;}
+  @keyframes rip{to{transform:scale(4);opacity:0;}}
+  @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;}}
+
+  /* ===== نسخة الخلفية الفاتحة (نيون على أبيض) ===== */
+  :root{
+    --bg:#eef3fa; --card:#ffffff; --border:#d8e3f0; --text:#14202e; --text-dim:#5d7088;
+    --accent:#00d68f; --accent-dark:#0090c8; --accent-soft:rgba(0,214,143,.10);
+    --warn:#c76a00; --warn-soft:rgba(255,176,32,.16); --danger:#e11d48; --danger-soft:rgba(225,29,72,.10);
+    --shadow:0 4px 16px rgba(30,60,100,.10);
+    --glow:0 0 12px rgba(0,214,143,.45),0 0 26px rgba(0,184,255,.22);
+  }
+  html{color-scheme:light;}
+  body::before{background:radial-gradient(600px 400px at 15% 10%,rgba(0,214,143,.20),transparent 70%),
+                          radial-gradient(500px 400px at 85% 90%,rgba(0,184,255,.18),transparent 70%);}
+  header{background:linear-gradient(120deg,#d6fff0,#d3f1ff,#d6fff0);background-size:200% 100%;color:#0b3d33;
+    box-shadow:0 6px 26px rgba(0,214,143,.28);}
+  header h1{color:#05382c;text-shadow:0 0 14px rgba(0,214,143,.55);}
+  header p{color:#2c5d52;}
+  .mesh-select-banner{background:linear-gradient(120deg,#d6fff0,#d3f1ff);}
+  .mesh-select-banner h2{color:#05382c;text-shadow:0 0 12px rgba(0,214,143,.5);}
+  #pinLock{background:radial-gradient(circle at 50% 30%,#d6fff0,#e6eefb);}
+  select option{background:#fff;color:#14202e;}
+  .tab-btn:hover{color:var(--accent-dark);text-shadow:none;}
+  .btn.secondary:hover{color:var(--accent-dark);}
+  .kpi-card .kpi-value{text-shadow:0 0 10px rgba(0,144,200,.35);}
+  .ripple{background:rgba(0,214,143,.35);}
+  .badge{box-shadow:0 0 6px rgba(0,214,143,.35);}
+  .badge.warn{box-shadow:0 0 6px rgba(255,176,32,.45);}
+  .badge.danger{box-shadow:0 0 6px rgba(225,29,72,.35);}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 </head>
@@ -368,7 +461,7 @@
       </div>
 
       <button class="btn" id="saveBtn" onclick="saveMeshEntry()">💾 حفظ بيانات هذا المشعر</button>
-      <p class="small-note" style="text-align:center;">هيتم حفظ بيانات هذا المشعر بس، من غير ما يأثر على بيانات المشاعر التانية لنفس اليوم.</p>
+      <p class="small-note" style="text-align:center;"></p>
     </div>
   </div>
 
@@ -449,7 +542,7 @@ let allReports = {};
 const weekdayNamesAr = ["الأحد","الإثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت"];
 
 // ================================================================
-// 👇 هنا تقدر تضيف / تشيل / تعدل العناصر الثابتة (data validation)
+
 const OPTIONS = {
   mina_in: [
   'البيعة العلوي',
@@ -512,7 +605,7 @@ const OPTIONS = {
   'عرفات القديم'
 ],
 };
-// 👇 أسماء المناطق لكل مشعر — عدّل هذه القوائم بأسمائكم الفعلية
+
 const ZONES = {
 mina: ['منى 1','منى 2','منى 3','منى 4','منى 5','منى 6','منى 7','منى 8','منى 9','منى 10','منى 11'],
 mzd: ['مزدلفة 1','مزدلفة 2','مزدلفة 3','مزدلفة 4','مزدلفة 5'],
@@ -889,6 +982,10 @@ function parseZoneExceptions(text){
 function renderDashboard(){
   if (typeof Chart === 'undefined') return; // مكتبة الرسم لسه مبتحملتش
   Chart.defaults.font.family = "'GE SS Two Bold', Tahoma, sans-serif";
+  Chart.defaults.color = '#4a5d73';
+  Chart.defaults.borderColor = 'rgba(20,32,46,.09)';
+  Chart.defaults.animation.duration = 1100;
+  Chart.defaults.animation.easing = 'easeOutQuart';
   const dates = Object.keys(allReports).sort(); // تصاعديًا حسب التاريخ
   const dashEmpty = document.getElementById('dashEmptyState');
   const dashContent = document.getElementById('dashContent');
@@ -941,9 +1038,9 @@ function renderDashboard(){
   chartTrend = new Chart(document.getElementById('chartTrend'), {
     type:'line',
     data:{ labels: dates, datasets:[
-      {label:'منى', data:minaBreaksArr, borderColor:'#0f7a4f', backgroundColor:'rgba(15,122,79,.12)', tension:.3, fill:true},
-      {label:'مزدلفة', data:mzdBreaksArr, borderColor:'#2563eb', backgroundColor:'rgba(37,99,235,.12)', tension:.3, fill:true},
-      {label:'عرفة', data:arBreaksArr, borderColor:'#d97706', backgroundColor:'rgba(217,119,6,.12)', tension:.3, fill:true},
+      {label:'منى', data:minaBreaksArr, borderColor:'#00d68f', backgroundColor:'rgba(0,245,160,.14)', tension:.3, fill:true},
+      {label:'مزدلفة', data:mzdBreaksArr, borderColor:'#00b8ff', backgroundColor:'rgba(0,184,255,.14)', tension:.3, fill:true},
+      {label:'عرفة', data:arBreaksArr, borderColor:'#ffb020', backgroundColor:'rgba(255,176,32,.14)', tension:.3, fill:true},
     ]},
     options:{ ...commonOpts, plugins:{legend:{position:'bottom'}}, scales:{ y:{ beginAtZero:true, ticks:{precision:0} } } }
   });
@@ -955,10 +1052,10 @@ function renderDashboard(){
     data:{
       labels:['منى','مزدلفة','عرفة'],
       datasets:[
-        {label:'الانكسارات', backgroundColor:'#b91c1c', data:[Number(latest.mina_breaks)||0, Number(latest.mzd_breaks)||0, Number(latest.ar_breaks)||0]},
-        {label:'جاري العمل', backgroundColor:'#d97706', data:[Number(latest.mina_inprogress)||0, Number(latest.mzd_inprogress)||0, Number(latest.ar_inprogress)||0]},
-        {label:'المعلق', backgroundColor:'#eab308', data:[Number(latest.mina_pending)||0, Number(latest.mzd_pending)||0, Number(latest.ar_pending)||0]},
-        {label:'المغلق', backgroundColor:'#0f7a4f', data:[Number(latest.mina_closed)||0, Number(latest.mzd_closed)||0, Number(latest.ar_closed)||0]},
+        {label:'الانكسارات', backgroundColor:'#ff3d71', data:[Number(latest.mina_breaks)||0, Number(latest.mzd_breaks)||0, Number(latest.ar_breaks)||0]},
+        {label:'جاري العمل', backgroundColor:'#ffb020', data:[Number(latest.mina_inprogress)||0, Number(latest.mzd_inprogress)||0, Number(latest.ar_inprogress)||0]},
+        {label:'المعلق', backgroundColor:'#f5b800', data:[Number(latest.mina_pending)||0, Number(latest.mzd_pending)||0, Number(latest.ar_pending)||0]},
+        {label:'المغلق', backgroundColor:'#00d68f', data:[Number(latest.mina_closed)||0, Number(latest.mzd_closed)||0, Number(latest.ar_closed)||0]},
       ]
     },
     options:{ ...commonOpts, plugins:{legend:{position:'bottom'}}, scales:{ y:{ beginAtZero:true, ticks:{precision:0} } } }
@@ -980,8 +1077,8 @@ function renderDashboard(){
       data:{
         labels: topZones.map(z=>z.zone),
         datasets:[
-          {label:'معزولة بالكامل', data: topZones.map(z=>z.full), backgroundColor:'#b91c1c', stack:'s'},
-          {label:'معزولة جزئياً', data: topZones.map(z=>z.partial), backgroundColor:'#eab308', stack:'s'},
+          {label:'معزولة بالكامل', data: topZones.map(z=>z.full), backgroundColor:'#ff3d71', stack:'s'},
+          {label:'معزولة جزئياً', data: topZones.map(z=>z.partial), backgroundColor:'#f5b800', stack:'s'},
         ]
       },
       options:{ indexAxis:'y', ...commonOpts, plugins:{legend:{position:'bottom'}}, scales:{ x:{ stacked:true, beginAtZero:true, ticks:{precision:0} }, y:{ stacked:true } } }
@@ -1017,7 +1114,7 @@ function renderDashboard(){
     if(chartIncoming) chartIncoming.destroy();
     chartIncoming = new Chart(document.getElementById('chartIncoming'), {
       type:'bar',
-      data:{ labels: sortedIncoming.map(z=>z[0]), datasets:[{label:'عدد مرات الوارد', data: sortedIncoming.map(z=>z[1]), backgroundColor:'#2563eb'}] },
+      data:{ labels: sortedIncoming.map(z=>z[0]), datasets:[{label:'عدد مرات الوارد', data: sortedIncoming.map(z=>z[1]), backgroundColor:'#00b8ff'}] },
       options:{ indexAxis:'y', ...commonOpts, plugins:{legend:{display:false}}, scales:{ x:{ beginAtZero:true, ticks:{precision:0} } } }
     });
   }
@@ -1034,7 +1131,7 @@ function renderDashboard(){
     if(chartOutgoing) chartOutgoing.destroy();
     chartOutgoing = new Chart(document.getElementById('chartOutgoing'), {
       type:'bar',
-      data:{ labels: sortedOutgoing.map(z=>z[0]), datasets:[{label:'عدد مرات المنصرف', data: sortedOutgoing.map(z=>z[1]), backgroundColor:'#7c3aed'}] },
+      data:{ labels: sortedOutgoing.map(z=>z[0]), datasets:[{label:'عدد مرات المنصرف', data: sortedOutgoing.map(z=>z[1]), backgroundColor:'#b266ff'}] },
       options:{ indexAxis:'y', ...commonOpts, plugins:{legend:{display:false}}, scales:{ x:{ beginAtZero:true, ticks:{precision:0} } } }
     });
   }
@@ -1257,6 +1354,24 @@ function loadMeshIntoForm(date, mesh){
   document.querySelector('.tab-btn[data-tab="entry"]').click();
   openMeshEntry(mesh);
 }
+
+// ---------- تفاعل: موجة عند الضغط + توهج يتبع الماوس ----------
+document.addEventListener('pointerdown', e=>{
+  const t = e.target.closest('.btn,.tab-btn,.mesh-select-btn'); if(!t) return;
+  const r = t.getBoundingClientRect(), d = Math.max(r.width, r.height);
+  const sp = document.createElement('span'); sp.className = 'ripple';
+  sp.style.cssText = `width:${d}px;height:${d}px;left:${e.clientX-r.left-d/2}px;top:${e.clientY-r.top-d/2}px`;
+  t.appendChild(sp); setTimeout(()=>sp.remove(), 650);
+});
+let _glowRaf = 0;
+document.addEventListener('pointermove', e=>{
+  const c = e.target.closest('.card,.kpi-card,.day-card'); if(!c || _glowRaf) return;
+  _glowRaf = requestAnimationFrame(()=>{
+    const r = c.getBoundingClientRect();
+    c.style.setProperty('--mx', (e.clientX-r.left)+'px'); c.style.setProperty('--my', (e.clientY-r.top)+'px');
+    _glowRaf = 0;
+  });
+});
 
 if(document.fonts && document.fonts.ready){ document.fonts.ready.then(()=>renderDashboard()); }
 init();
