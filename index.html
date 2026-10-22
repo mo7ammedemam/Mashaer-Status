@@ -6,15 +6,27 @@
 <title>الحالة التشغيلية للمشاعر المقدسة</title>
 <script>
   // ================================================================
-  
+  // 👇 الصق هنا رابط الـ Web App بتاع Apps Script بعد نشره (Deploy)
   const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyugnhZvdvuYAMICIO8WhpNihWEUA1BLjEFvKjWrTTu3jxFuig9nxHvZqNqQk1WpBsz/exec";
-  
+  // مثال: https://script.google.com/macros/s/AKfycb.../exec
 
- 
+  // 👇 غيّر الرقم ده لأي PIN تحب تحميه بيه (أرقام أو حروف، أي طول)
   const SITE_PIN = "1607";
   // ================================================================
 </script>
 <style>
+  @font-face{
+    font-family:'GE SS Two Bold';
+    src: local('GE SS Two Bold'), local('GESSTwoBold-Bold'),
+         url('GE_SS_Two_Bold.woff2') format('woff2'),
+         url('GE_SS_Two_Bold.woff') format('woff'),
+         url('GE_SS_Two_Bold.ttf') format('truetype'),
+         url('GE_SS_Two_Bold.otf') format('opentype');
+    font-weight:100 900;
+    font-style:normal;
+    font-display:swap;
+  }
+  input,select,textarea,button{font-family:inherit;}
   :root{
     --bg:#f5f7f6; --card:#ffffff; --border:#e2e6e4; --text:#1b241f; --text-dim:#5b6660;
     --accent:#0f7a4f; --accent-dark:#0a5c3a; --accent-soft:#e6f4ee;
@@ -22,7 +34,7 @@
     --shadow: 0 1px 3px rgba(20,30,25,.06), 0 1px 2px rgba(20,30,25,.04);
   }
   *{box-sizing:border-box;}
-  body{margin:0;background:var(--bg);color:var(--text);font-family:"Tahoma","Segoe UI",system-ui,-apple-system,sans-serif;min-height:100vh;padding-bottom:60px;}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:'GE SS Two Bold',"Tahoma","Segoe UI",system-ui,-apple-system,sans-serif;min-height:100vh;padding-bottom:60px;}
   header{background:linear-gradient(135deg,var(--accent-dark),var(--accent));color:#fff;padding:22px 18px 60px;text-align:center;}
   header h1{margin:0 0 4px;font-size:20px;font-weight:700;}
   header p{margin:0;font-size:13px;opacity:.9;}
@@ -437,7 +449,7 @@ let allReports = {};
 const weekdayNamesAr = ["الأحد","الإثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت"];
 
 // ================================================================
-// 👇 (data validation)
+// 👇 هنا تقدر تضيف / تشيل / تعدل العناصر الثابتة (data validation)
 const OPTIONS = {
   mina_in: [
   'البيعة العلوي',
@@ -458,7 +470,6 @@ const OPTIONS = {
   'تبريد منى',
   'المعيصم'
 ],
-
   mina_out: [
   'البيعة العلوي',
   'وسط منى',
@@ -478,36 +489,30 @@ const OPTIONS = {
   'تبريد منى',
   'المعيصم'
 ],
-
   mzd_in: [
   'مزدلفة الرئيسي',
   'حريق مزدلفة',
   'مزدلفة الترددية'
 ],
-
-  mzd_out:[
-   'مزدلفة الرئيسي',
+  mzd_out: [
+  'مزدلفة الرئيسي',
   'حريق مزدلفة',
   'مزدلفة الترددية'
 ],
-
   arf_in: [
   'عرفات الخرساني',
   'حريق عرفات',
   'عرفات الحديدي',
   'عرفات القديم'
 ],
-
   arf_out: [
   'عرفات الخرساني',
   'حريق عرفات',
   'عرفات الحديدي',
   'عرفات القديم'
 ],
-
 };
-// 👇 أسماء المناطق لكل مشعر 
-
+// 👇 أسماء المناطق لكل مشعر — عدّل هذه القوائم بأسمائكم الفعلية
 const ZONES = {
 mina: ['منى 1','منى 2','منى 3','منى 4','منى 5','منى 6','منى 7','منى 8','منى 9','منى 10','منى 11'],
 mzd: ['مزدلفة 1','مزدلفة 2','مزدلفة 3','مزدلفة 4','مزدلفة 5'],
@@ -883,6 +888,7 @@ function parseZoneExceptions(text){
 
 function renderDashboard(){
   if (typeof Chart === 'undefined') return; // مكتبة الرسم لسه مبتحملتش
+  Chart.defaults.font.family = "'GE SS Two Bold', Tahoma, sans-serif";
   const dates = Object.keys(allReports).sort(); // تصاعديًا حسب التاريخ
   const dashEmpty = document.getElementById('dashEmptyState');
   const dashContent = document.getElementById('dashContent');
@@ -1252,6 +1258,7 @@ function loadMeshIntoForm(date, mesh){
   openMeshEntry(mesh);
 }
 
+if(document.fonts && document.fonts.ready){ document.fonts.ready.then(()=>renderDashboard()); }
 init();
 </script>
 </body>
